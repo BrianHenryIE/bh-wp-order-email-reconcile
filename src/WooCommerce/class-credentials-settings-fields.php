@@ -31,6 +31,7 @@ class Credentials_Settings_Fields {
 				'data-form-type' => 'text',
 			),
 			'id'                => 'email_server',
+			'default'           => str_replace( 'mail.example.com', '', get_option( 'mailserver_url' ) ),
 		);
 
 		$form_fields['email_username'] = array(
@@ -43,6 +44,7 @@ class Credentials_Settings_Fields {
 				'data-lpignore' => 'true',
 			),
 			'id'                => 'email_username',
+			'default'           => str_replace( 'mail.example.com', '', get_option( 'mailserver_url' ) ),
 		);
 
 		$form_fields['email_password'] = array(
@@ -68,6 +70,8 @@ class Credentials_Settings_Fields {
 				'delete'    => __( 'Delete email', 'bh-wc-order-email-reconcile' ),
 			),
 		);
+
+		// TODO: Add a link to view the email CPT.
 
 		return $form_fields;
 	}

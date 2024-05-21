@@ -69,7 +69,7 @@
         "php": ">=7.4",
         "brianhenryie/bh-wp-mailboxes": "dev-master",
         "ddeboer/imap": "^1.11",
-        "psr/container": "^2.0",
+        "psr/container": "^1.0",
         "psr/log": "^1.0.0"
     },
     "require-dev": {
@@ -110,9 +110,6 @@
         "patches": {
             "jaschilz/php-coverage-badger": {
                 "Allow customising the text": "https://github.com/JASchilz/PHPCoverageBadge/pull/1.patch"
-            },
-            "10up/wp_mock": {
-                "Add AnyObject matcher": "https://github.com/BrianHenryIE/wp_mock/pull/1.patch"
             }
         },
         "google/apiclient-services": [

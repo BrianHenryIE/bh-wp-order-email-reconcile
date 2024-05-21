@@ -18,6 +18,7 @@ use BrianHenryIE\WC_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\BH_Email;
 use BrianHenryIE\WP_Mailboxes\Mailbox_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\BH_WP_Mailboxes_Settings_Interface;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -44,18 +45,25 @@ class API {
 	 */
 	protected LoggerInterface $logger;
 
+	protected Unpaid_Orders $unpaid_orders_service;
+
+	protected Email_Reconciler $email_reconciler_service;
+
 	/**
 	 * IMAP_Reconcile constructor.
 	 *
 	 * @param Email_Reconcile_Settings_Interface $settings The settings for connections, matching and reconciliation.
 	 * @param ?LoggerInterface                   $logger  Optional logger.
 	 */
-	public function __construct( Email_Reconcile_Settings_Interface $settings, $logger = null ) {
+	public function __construct( ContainerInterface $container ) {
 
-		$this->logger   = $logger ?? new NullLogger();
-		$this->settings = $settings;
+		$this->logger   = $container->get( LoggerInterface::class );
+		$this->settings = $container->get( Email_Reconcile_Settings_Interface::class );
 
-		add_action( 'bh_wp_mailboxes_fetch_emails_saved_' . $settings->get_plugin_slug(), array( $this, 'process_new_emails' ), 10, 3 );
+		$this->unpaid_orders_service    = $container->get( Unpaid_Orders::class );
+		$this->email_reconciler_service = $container->get( Email_Reconciler::class );
+
+		add_action( 'bh_wp_mailboxes_fetch_emails_saved_' . $this->settings->get_plugin_slug(), array( $this, 'process_new_emails' ), 10, 3 );
 	}
 
 	/**
@@ -64,56 +72,53 @@ class API {
 	 * @hooked bh_wp_mailboxes_fetch_emails_saved_{plugin-slug}
 	 * @see \BrianHenryIE\WP_Mailboxes\API\API::check_email()
 	 *
-	 * @param BH_Email[] $emails
+	 * @param BH_Email[] $new_payment_emails
 	 *
 	 * @return array{success:bool, num_emails:int, num_unpaid_orders:int, reconciled:int}
 	 */
-	public function process_new_emails( array $emails, BH_WP_Mailboxes_Settings_Interface $mailboxes, Mailbox_Settings_Interface $account ): array {
+	public function process_new_emails( array $new_payment_emails, Mailbox_Settings_Interface $account, \BrianHenryIE\WP_Mailboxes\API\API $mailboxes ): array {
 
-		$unpaid_orders    = new Unpaid_Orders( $this->settings, $this->logger );
-		$wc_unpaid_orders = $unpaid_orders->get_unpaid_orders();
+		if ( 0 === count( $new_payment_emails ) ) {
 
-		// Nothing to do if there are no orders unpaid.
-		if ( 0 === count( $unpaid_orders ) ) {
-			$this->logger->info( 'No unpaid orders found. Ending. ' . count( $emails ) . ' emails found. Account: ' . $account->get_account_unique_friendly_name() );
 			$result = array(
 				'success'           => true,
-				'num_emails'        => count( $emails ),
+				'num_emails'        => 0,
+				'num_unpaid_orders' => null,
+				'reconciled'        => 0,
+			);
+			return $result;
+		}
+
+		$unpaid_orders_service = $this->unpaid_orders_service;
+		$unpaid_wc_orders      = $unpaid_orders_service->get_unpaid_orders();
+
+		// Nothing to do if there are no orders unpaid.
+		if ( 0 === count( $unpaid_wc_orders ) ) {
+			$this->logger->info( 'No unpaid orders found. Ending. ' . count( $new_payment_emails ) . ' emails found. Account: ' . $account->get_account_unique_friendly_name() );
+			$result = array(
+				'success'           => true,
+				'num_emails'        => count( $new_payment_emails ),
 				'num_unpaid_orders' => 0,
 				'reconciled'        => 0,
 			);
 			return $result;
 		}
 
-		$this->logger->info( count( $unpaid_orders ) . ' unpaid orders for ' . $this->settings->get_plugin_slug() . ' gateways.' );
-
-		$new_payment_emails = $emails;
-
-		// TODO: Return here if there are none.
-		if ( 0 === count( $new_payment_emails ) ) {
-
-			$result = array(
-				'success'           => true,
-				'num_emails'        => 0,
-				'num_unpaid_orders' => count( $wc_unpaid_orders ),
-				'reconciled'        => 0,
-			);
-			return $result;
-		}
+		$this->logger->info( count( $unpaid_wc_orders ) . ' unpaid orders for ' . $this->settings->get_plugin_slug() . ' gateways.' );
 
 		$email_parser = new Email_Parser( $this->settings->get_patterns(), $this->logger );
 
 		$parsed_emails = $email_parser->parse_emails( $new_payment_emails );
 
-		$email_reconciler = new Email_Reconciler( $this->settings, $this->logger );
-		$email_reconciler->index_orders( $wc_unpaid_orders );
+		$email_reconciler = $this->email_reconciler_service;
+		$email_reconciler->index_orders( $unpaid_wc_orders );
 
 		$reconcile_emails_result = $email_reconciler->reconcile_emails( $parsed_emails );
 
 		$result = array(
 			'success'           => true,
-			'num_emails'        => count( $emails ),
-			'num_unpaid_orders' => count( $wc_unpaid_orders ),
+			'num_emails'        => count( $new_payment_emails ),
+			'num_unpaid_orders' => count( $unpaid_wc_orders ),
 			'reconciled'        => count( $reconcile_emails_result['reconciled_emails'] ),
 		);
 

@@ -10,7 +10,6 @@
 
 namespace BrianHenryIE\WC_Order_Email_Reconcile\API;
 
-use BrianHenryIE\WC_Order_Email_Reconcile\API\Model\Email;
 use BrianHenryIE\WC_Order_Email_Reconcile\API\Model\Parsed_Email;
 use BrianHenryIE\WC_Order_Email_Reconcile\Email_Extract_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\BH_Email;
@@ -28,7 +27,7 @@ class Email_Parser {
 	use LoggerAwareTrait;
 
 	/**
-	 * Array of pattern-sets for extracting amount, transaction id etc from emails.
+	 * Array of pattern-sets for extracting amount, transaction id etc. from emails.
 	 *
 	 * @var Email_Extract_Settings_Interface[]
 	 */
@@ -55,13 +54,10 @@ class Email_Parser {
 	public function parse_emails( array $emails ): array {
 		$parsed_emails = array();
 		foreach ( $emails as $email ) {
-			foreach ( array( $email->get_body_html(), $email->get_body_plain_text() ) as $body ) {
-				$parsed_emails[] = $this->parse_email( $body );
-			}
+			$parsed_emails[] = $this->parse_email( $email );
 		}
 
 		return $parsed_emails;
-
 	}
 
 	/**
@@ -71,7 +67,7 @@ class Email_Parser {
 	 * // If one pattern set gets a full match, use it (what's a full match...?)
 	 * // otherwise merge them together somehow
 	 *
-	 * @param string $email_body Text or HTML email body to search.
+	 * @param BH_Email $email Text or HTML email body to search.
 	 *
 	 * @return ?Parsed_Email
 	 */
@@ -93,7 +89,7 @@ class Email_Parser {
 
 		// TODO: What to do if there are mis-matches between what patterns' found?
 
-		// I think array_merge or similiar can do this.
+		// I think array_merge or similar can do this.
 		// Take the last one, presuming the newest pattern set is most likely to be correct.
 		$parsed_email_array = array_pop( $parsed_values_arrays );
 		// Then fill in any missing properties from earlier patterns.
