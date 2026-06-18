@@ -12,12 +12,12 @@ use BrianHenryIE\ColorLogger\ColorLogger;
 use BrianHenryIE\WC_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 
 /**
- * @covers \BrianHenryIE\WC_Order_Email_Reconcile\API\Unpaid_Orders
+ * @covers \BrianHenryIE\WC_Order_Email_Reconcile\API\WC_Unpaid_Orders
  */
 class Unpaid_Orders_WP_Unit_Test extends \Codeception\TestCase\WPTestCase {
 
     /**
-     * @covers \BrianHenryIE\WC_Order_Email_Reconcile\API\Unpaid_Orders::get_unpaid_orders
+     * @covers \BrianHenryIE\WC_Order_Email_Reconcile\API\WC_Unpaid_Orders::get_unpaid_orders
      */
     public function test_unpaid_orders() {
 
@@ -28,7 +28,7 @@ class Unpaid_Orders_WP_Unit_Test extends \Codeception\TestCase\WPTestCase {
             )
         );
 
-        $sut = new Unpaid_Orders( $settings, $logger );
+        $sut = new WC_Unpaid_Orders( $settings, $logger );
 
         $o1 = new \WC_Order();
         $o1->set_status('on-hold');

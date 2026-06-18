@@ -38,7 +38,7 @@ class API {
 	 */
 	public function __construct(
 		protected Email_Reconcile_Settings_Interface $settings,
-		protected Unpaid_Orders $unpaid_orders_service,
+		protected WC_Unpaid_Orders $unpaid_orders_service,
 		protected Email_Reconciler $email_reconciler_service,
 		LoggerInterface $logger,
 	) {

@@ -9,7 +9,7 @@ namespace BrianHenryIE\WC_Order_Email_Reconcile;
 
 use BrianHenryIE\WC_Order_Email_Reconcile\API\API;
 use BrianHenryIE\WC_Order_Email_Reconcile\API\Email_Reconciler;
-use BrianHenryIE\WC_Order_Email_Reconcile\API\Unpaid_Orders;
+use BrianHenryIE\WC_Order_Email_Reconcile\API\WC_Unpaid_Orders;
 use BrianHenryIE\WP_Mailboxes\BH_WP_Mailboxes;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -27,7 +27,7 @@ class BH_WC_Order_Email_Reconcile extends API {
 		// order is created and unregister it when there are no unpaid orders.
 		$bh_wp_mailboxes = BH_WP_Mailboxes::make( $settings, $logger );
 
-		$unpaid_orders_service = new Unpaid_Orders(
+		$unpaid_orders_service = new WC_Unpaid_Orders(
 			$settings,
 			$logger
 		);

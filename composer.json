@@ -27,12 +27,12 @@
     },
     "autoload": {
         "classmap": [
-            "src/"
+            "includes/"
         ]
     },
     "autoload-dev": {
         "classmap": [
-            "test-plugin/"
+            "development-plugin/"
         ]
     },
     "repositories": [

@@ -32,8 +32,8 @@ class API_WPUnit_Test extends \Codeception\TestCase\WPTestCase {
 				switch($id){
 					case LoggerInterface::class:
 						return $logger;
-					case Unpaid_Orders::class:
-						return Stub::makeEmpty( Unpaid_Orders::class,
+					case WC_Unpaid_Orders::class:
+						return Stub::makeEmpty( WC_Unpaid_Orders::class,
 						array(
 							'get_unpaid_orders' => Stub\Expected::once(function(){
 								return array();

@@ -23,3 +23,5 @@ Fake WooCommerce gateway.
 Place fake order.
 Configure BH WP Order Email Reconcile with test mailbox credentials.
 Send fake email to test mailbox.
+
+If there are unrecnociled emails there should be an admin notice.

@@ -54,30 +54,10 @@ class Unpaid_Orders implements Countable {
 	 */
 	public function get_unpaid_orders(): array {
 
-		// wc- prefixed list of statuses.
-		$all_order_statuses = array_keys( wc_get_order_statuses() );
-		// Not wc- prefixed list of statuses.
-		$paid_statuses         = wc_get_is_paid_statuses();
-		$uninterested_statuses = array_merge( $paid_statuses, array( 'failed', 'refunded', 'cancelled' ) );
-
-		// These will not be prefixed.
-		$unpaid_order_statuses = array();
-
-		foreach ( $all_order_statuses as $order_status ) {
-			$order_status = substr( $order_status, 3 );
-			if ( in_array( $order_status, $uninterested_statuses, true ) ) {
-				continue;
-			}
-			$unpaid_order_statuses[] = $order_status;
+		if(is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
+			$wc_unpaid_order_service = new WC_Unpaid_Orders( $this->settings, $this->logger);
+			$wc_unpaid_orders = $wc_unpaid_order_service->get_unpaid_orders();
 		}
-
-		$args = array(
-			'limit'          => -1,
-			'status'         => $unpaid_order_statuses, // TODO: filter.
-			'payment_method' => $this->settings->get_payment_method_ids(),
-		);
-
-		$this->logger->debug( 'Querying WooCommerce for unpaid orders.', array( 'args' => $args ) );
 
 		/**
 		 * Get unpaid orders.

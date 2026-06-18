@@ -48,16 +48,9 @@ class Email_Reconciler {
 	protected array $orders_index = array();
 
 	/**
-	 * Required to get the customers id meta-key (Venmo username, $CashTag...) for matching.
-	 *
-	 * @var Email_Reconcile_Settings_Interface
-	 */
-	protected Email_Reconcile_Settings_Interface $settings;
-
-	/**
 	 * Email_Reconciler constructor.
 	 *
-	 * @param Email_Reconcile_Settings_Interface $settings Settings, used to get the customer id.
+	 * @param Email_Reconcile_Settings_Interface $settings Settings, used to get the customer id meta-key (Venmo username, $CashTag...) for matching.
 	 * @param LoggerInterface                    $logger Logger.
 	 */
 	public function __construct(
@@ -65,7 +58,6 @@ class Email_Reconciler {
 		LoggerInterface $logger
 	) {
 		$this->setLogger( $logger );
-		$this->settings = $settings;
 
 		$this->orders_index['order_id']       = array();
 		$this->orders_index['customer_id']    = array();
