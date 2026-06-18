@@ -12,7 +12,8 @@ namespace BrianHenryIE\WC_Order_Email_Reconcile\API;
 
 use BrianHenryIE\WC_Order_Email_Reconcile\API\Model\Parsed_Email;
 use BrianHenryIE\WC_Order_Email_Reconcile\Email_Extract_Settings_Interface;
-use BrianHenryIE\WP_Mailboxes\BH_Email;
+use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
+
 use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;

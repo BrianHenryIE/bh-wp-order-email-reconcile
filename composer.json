@@ -15,10 +15,14 @@
         "process-timeout": 0,
         "sort-packages": true,
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-            "phpstan/extension-installer": true,
             "composer/installers": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "johnpbloch/wordpress-core-installer": true,
+            "phpstan/extension-installer": true
+        },
+        "platform": {
+            "php": "8.4"
         }
     },
     "autoload": {
@@ -33,7 +37,7 @@
     },
     "repositories": [
         {
-            "url": "https://github.com/WordPress/wordpress-develop",
+            "url": "https://github.com/WordPress/wordpress-develop.git",
             "type": "git"
         },
         {
@@ -46,53 +50,30 @@
         }
     ],
     "require": {
-        "php": ">=8.0",
-        "brianhenryie/bh-wp-mailboxes": "dev-master",
-        "ddeboer/imap": "^1.11",
-        "psr/container": "*",
-        "psr/log": "*"
+        "php": ">=8.3",
+        "brianhenryie/bh-wp-mailboxes": "dev-master"
     },
     "require-dev": {
         "vlucas/phpdotenv": "*",
+        "antecedent/patchwork": "^2.1",
         "10up/wp_mock": "*",
         "antecedent/patchwork": "*",
         "brianhenryie/bh-wp-logger": "*",
         "brianhenryie/color-logger": "*",
-        "brianhenryie/composer-phpstorm": "*",
         "dealerdirect/phpcodesniffer-composer-installer": "*",
         "lucatume/wp-browser": "*",
         "phpstan/extension-installer": "*",
         "phpunit/phpcov": "*",
-        "squizlabs/php_codesniffer": "*",
         "szepeviktor/phpstan-wordpress": "*",
-        "wordpress/wordpress": "*",
-        "wp-cli/wp-cli-bundle": "*",
-        "wp-cli/dist-archive-command": "*",
+        "wordpress/wordpress": "7.0",
         "wp-coding-standards/wpcs": "*",
-        "php-stubs/woocommerce-stubs": "*",
         "wpackagist-plugin/woocommerce": "*",
         "wpackagist-theme/storefront": "*"
     },
     "extra": {
         "google/apiclient-services": [
             "Gmail"
-        ],
-        "phpstorm": {
-            "exclude_folders": {
-                "folders": [
-                    "vendor/php-stubs/woocommerce-stubs",
-                    "vendor/wordpress/wordpress/src",
-                    "vendor/wordpress/wordpress/build",
-                    "wp-content/plugins/bh-wp-order-email-reconcile-test-plugin",
-                    "wordpress/wp-content",
-                    "test-plugin/vendor"
-                ],
-                "include_folders": [
-                    "vendor/wordpress/wordpress/"
-                ],
-                "composer-symlinks": false
-            }
-        }
+        ]
     },
     "scripts": {
         "pre-autoload-dump": "Google\\Task\\Composer::cleanup",

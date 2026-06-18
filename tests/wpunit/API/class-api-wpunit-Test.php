@@ -4,7 +4,7 @@ namespace BrianHenryIE\WC_Order_Email_Reconcile\API;
 
 use BrianHenryIE\ColorLogger\ColorLogger;
 use BrianHenryIE\WC_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
-use BrianHenryIE\WP_Mailboxes\BH_Email;
+use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
 use BrianHenryIE\WP_Mailboxes\Mailbox_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\BH_WP_Mailboxes_Settings_Interface;
 use Codeception\Stub;

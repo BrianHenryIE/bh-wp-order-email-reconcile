@@ -60,7 +60,10 @@ class Email_Reconciler {
 	 * @param Email_Reconcile_Settings_Interface $settings Settings, used to get the customer id.
 	 * @param LoggerInterface                    $logger Logger.
 	 */
-	public function __construct( Email_Reconcile_Settings_Interface $settings, LoggerInterface $logger ) {
+	public function __construct(
+		protected Email_Reconcile_Settings_Interface $settings,
+		LoggerInterface $logger
+	) {
 		$this->setLogger( $logger );
 		$this->settings = $settings;
 

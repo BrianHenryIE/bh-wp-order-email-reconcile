@@ -24,15 +24,7 @@ use WC_Order;
  * @package brianhenryie/bh-wc-order-email-reconcile
  */
 class Unpaid_Orders implements Countable {
-
 	use LoggerAwareTrait;
-
-	/**
-	 * Settings to indicate what payment method ids unpaid orders should be searched for.
-	 *
-	 * @var Email_Reconcile_Settings_Interface
-	 */
-	protected Email_Reconcile_Settings_Interface $settings;
 
 	/**
 	 * The unpaid orders for this payment gateway.
@@ -45,12 +37,14 @@ class Unpaid_Orders implements Countable {
 	 *
 	 * Unpaid_Orders constructor.
 	 *
-	 * @param Email_Reconcile_Settings_Interface $settings Settings specifying what payment gateways are we concerned with.
+	 * @param Email_Reconcile_Settings_Interface $settings Settings to indicate what payment method ids unpaid orders should be searched for.
 	 * @param LoggerInterface                    $logger Logger.
 	 */
-	public function __construct( Email_Reconcile_Settings_Interface $settings, LoggerInterface $logger ) {
-		$this->logger   = $logger;
-		$this->settings = $settings;
+	public function __construct(
+		protected Email_Reconcile_Settings_Interface $settings,
+		LoggerInterface $logger,
+	) {
+		$this->setLogger( $logger );
 	}
 
 	/**

@@ -10,7 +10,7 @@
 
 namespace BrianHenryIE\WC_Order_Email_Reconcile\API\Model;
 
-use BrianHenryIE\WP_Mailboxes\BH_Email;
+use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
 
 class Parsed_Email {
 

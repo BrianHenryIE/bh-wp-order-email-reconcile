@@ -75,6 +75,4 @@ class Credentials_Settings_Fields {
 
 		return $form_fields;
 	}
-
-
 }

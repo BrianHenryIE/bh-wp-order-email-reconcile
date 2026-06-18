@@ -1,33 +1,49 @@
 <?php
+/**
+ * A convenience class with a static `::make()` method.
+ *
+ * @package brianhenryie/bh-wc-order-email-reconcile
+ */
 
 namespace BrianHenryIE\WC_Order_Email_Reconcile;
 
 use BrianHenryIE\WC_Order_Email_Reconcile\API\API;
-use BrianHenryIE\WC_Order_Email_Reconcile\API\Container;
-use BrianHenryIE\WP_Mailboxes\API\API as BH_WP_Mailboxes;
-use BrianHenryIE\WP_Mailboxes\WP_Includes\BH_WP_Mailboxes_Hooks;
+use BrianHenryIE\WC_Order_Email_Reconcile\API\Email_Reconciler;
+use BrianHenryIE\WC_Order_Email_Reconcile\API\Unpaid_Orders;
+use BrianHenryIE\WP_Mailboxes\BH_WP_Mailboxes;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class BH_WC_Order_Email_Reconcile extends API {
 
-	protected static BH_WC_Order_Email_Reconcile $instance;
+	public static function make(
+		Email_Reconcile_Settings_Interface $settings,
+		?LoggerInterface $logger = null
+	): BH_WC_Order_Email_Reconcile {
 
-	public static function instance( Email_Reconcile_Settings_Interface $settings, ?LoggerInterface $logger = null ): BH_WC_Order_Email_Reconcile {
+		$logger ??= new NullLogger();
 
-		if ( empty( self::$instance ) ) {
-			$logger = $logger ?? new NullLogger();
+		// BH WP Mailboxes cron job should be disabled, this library should register a cron job when a relevent
+		// order is created and unregister it when there are no unpaid orders.
+		$bh_wp_mailboxes = BH_WP_Mailboxes::make( $settings, $logger );
 
-			$container = new Container( $settings, $logger );
+		$unpaid_orders_service = new Unpaid_Orders(
+			$settings,
+			$logger
+		);
+		$email_reconciler_service = new Email_Reconciler(
+			$settings,
+			$logger
+		);
 
-			$bh_wp_mailboxes = new BH_WP_Mailboxes( $settings, null, $logger );
-			new BH_WP_Mailboxes_Hooks( $bh_wp_mailboxes, $settings, $logger );
+		$order_email_reconcile = new self(
+			$settings,
+			$unpaid_orders_service,
+			$email_reconciler_service,
+			$logger
+		);
+		// TODO: hooks.
 
-			self::$instance = new BH_WC_Order_Email_Reconcile( $container );
-
-		}
-
-		return self::$instance;
+		return $order_email_reconcile;
 	}
-
 }
