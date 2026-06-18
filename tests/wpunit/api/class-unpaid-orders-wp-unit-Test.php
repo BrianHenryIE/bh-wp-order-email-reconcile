@@ -2,22 +2,22 @@
 /**
  *
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  * @author  BrianHenryIE <BrianHenryIE@gmail.com>
  */
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile\API;
+namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
 use BrianHenryIE\ColorLogger\ColorLogger;
-use BrianHenryIE\WC_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 
 /**
- * @covers \BrianHenryIE\WC_Order_Email_Reconcile\API\WC_Unpaid_Orders
+ * @covers \BrianHenryIE\WP_Order_Email_Reconcile\API\WC_Unpaid_Orders
  */
 class Unpaid_Orders_WP_Unit_Test extends \Codeception\TestCase\WPTestCase {
 
     /**
-     * @covers \BrianHenryIE\WC_Order_Email_Reconcile\API\WC_Unpaid_Orders::get_unpaid_orders
+     * @covers \BrianHenryIE\WP_Order_Email_Reconcile\API\WC_Unpaid_Orders::get_unpaid_orders
      */
     public function test_unpaid_orders() {
 

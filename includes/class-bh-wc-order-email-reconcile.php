@@ -2,24 +2,24 @@
 /**
  * A convenience class with a static `::make()` method.
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile;
+namespace BrianHenryIE\WP_Order_Email_Reconcile;
 
-use BrianHenryIE\WC_Order_Email_Reconcile\API\API;
-use BrianHenryIE\WC_Order_Email_Reconcile\API\Email_Reconciler;
-use BrianHenryIE\WC_Order_Email_Reconcile\API\WC_Unpaid_Orders;
+use BrianHenryIE\WP_Order_Email_Reconcile\API\API;
+use BrianHenryIE\WP_Order_Email_Reconcile\API\Email_Reconciler;
+use BrianHenryIE\WP_Order_Email_Reconcile\API\WC_Unpaid_Orders;
 use BrianHenryIE\WP_Mailboxes\BH_WP_Mailboxes;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-class BH_WC_Order_Email_Reconcile extends API {
+class BH_WP_Order_Email_Reconcile extends API {
 
 	public static function make(
 		Email_Reconcile_Settings_Interface $settings,
 		?LoggerInterface $logger = null
-	): BH_WC_Order_Email_Reconcile {
+	): BH_WP_Order_Email_Reconcile {
 
 		$logger ??= new NullLogger();
 

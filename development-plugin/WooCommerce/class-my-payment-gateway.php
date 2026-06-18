@@ -1,6 +1,6 @@
 <?php
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile_Test_Plugin\WooCommerce;
+namespace BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\WooCommerce;
 
 use WC_Payment_Gateway;
 

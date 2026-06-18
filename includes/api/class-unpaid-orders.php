@@ -2,15 +2,15 @@
 /**
  * Get the unpaid WooCommerce orders for the payment gateway ids specified in the settings.
  *
- * @link       https://GitHub.com/BrianHenryIE/bh-wc-order-email-reconcile
+ * @link       https://GitHub.com/BrianHenryIE/bh-wp-order-email-reconcile
  * @since      1.0.0
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile\API;
+namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
-use BrianHenryIE\WC_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 use Countable;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -21,7 +21,7 @@ use WC_Order;
  *
  * Class Unpaid_Orders
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 class Unpaid_Orders implements Countable {
 	use LoggerAwareTrait;

@@ -21,8 +21,8 @@
     <exclude-pattern>/wp-content/</exclude-pattern>
 
     <rule ref="Squiz.PHP.DisallowMultipleAssignments.Found">
-        <exclude-pattern>bh-wc-order-email-reconcile.php</exclude-pattern>
-        <exclude-pattern>class-bh-wc-order-email-reconcile.php</exclude-pattern>
+        <exclude-pattern>bh-wp-order-email-reconcile.php</exclude-pattern>
+        <exclude-pattern>class-bh-wp-order-email-reconcile.php</exclude-pattern>
     </rule>
 
 </ruleset>

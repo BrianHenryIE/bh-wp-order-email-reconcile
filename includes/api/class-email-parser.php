@@ -2,16 +2,16 @@
 /**
  * Executes the regex searches for the payment information.
  *
- * @link       https://GitHub.com/BrianHenryIE/bh-wc-order-email-reconcile
+ * @link       https://GitHub.com/BrianHenryIE/bh-wp-order-email-reconcile
  * @since      1.0.0
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile\API;
+namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
-use BrianHenryIE\WC_Order_Email_Reconcile\API\Model\Parsed_Email;
-use BrianHenryIE\WC_Order_Email_Reconcile\Email_Extract_Settings_Interface;
+use BrianHenryIE\WP_Order_Email_Reconcile\API\Model\Parsed_Email;
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Extract_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
 
 use Exception;
@@ -21,7 +21,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Parses emails using multiple pattern sets then attempts to merge the results into one body of Parsed_Email information.
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 class Email_Parser {
 

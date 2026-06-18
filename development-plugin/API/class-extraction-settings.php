@@ -1,8 +1,8 @@
 <?php
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile_Test_Plugin;
+namespace BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin;
 
-use BrianHenryIE\WC_Order_Email_Reconcile\Email_Extract_Settings_Interface;
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Extract_Settings_Interface;
 
 /**
  * @see Email_Extract_Settings_Helper_Trait

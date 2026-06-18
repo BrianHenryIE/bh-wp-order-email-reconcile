@@ -1,11 +1,11 @@
 <?php
 /**
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  * @author  BrianHenryIE <BrianHenryIE@gmail.com>
  */
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile\API;
+namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
 use Psr\Log\NullLogger;
 

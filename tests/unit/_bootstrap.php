@@ -2,7 +2,7 @@
 /**
  * PHPUnit bootstrap file for WP_Mock.
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
 WP_Mock::setUsePatchwork( true );

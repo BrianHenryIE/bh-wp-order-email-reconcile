@@ -4,12 +4,12 @@
  * It provides empty defaults for fields you may not use.
  * It protects a little when updating by enabling the library to add fields and provide empty defaults for new interface methods.
  *
- * @see \BrianHenryIE\WC_Order_Email_Reconcile\Email_Extract_Settings_Interface
+ * @see \BrianHenryIE\WP_Order_Email_Reconcile\Email_Extract_Settings_Interface
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile;
+namespace BrianHenryIE\WP_Order_Email_Reconcile;
 
 trait Email_Extract_Settings_Helper_Trait {
 

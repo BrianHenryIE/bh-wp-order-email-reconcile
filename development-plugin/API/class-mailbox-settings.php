@@ -1,6 +1,6 @@
 <?php
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile_Test_Plugin;
+namespace BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin;
 
 use BrianHenryIE\WP_Mailboxes\Account_Credentials_Interface;
 use BrianHenryIE\WP_Mailboxes\API\Ddeboer_Imap\IMAP_Credentials_Interface;

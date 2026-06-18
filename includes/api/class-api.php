@@ -6,15 +6,15 @@
  * 3. Parses values from those emails.
  * 4. Reconciles the emails with the outstanding orders.
  *
- * @link       https://GitHub.com/BrianHenryIE/bh-wc-order-email-reconcile
+ * @link       https://GitHub.com/BrianHenryIE/bh-wp-order-email-reconcile
  * @since      1.0.0
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile\API;
+namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
-use BrianHenryIE\WC_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
 use BrianHenryIE\WP_Mailboxes\BH_Email_Account;
 use Psr\Log\LoggerAwareTrait;
@@ -25,7 +25,7 @@ use Psr\Log\LoggerInterface;
  *
  * Class IMAP_Reconcile
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 class API {
 	use LoggerAwareTrait;

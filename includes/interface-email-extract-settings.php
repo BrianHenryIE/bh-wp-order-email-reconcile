@@ -2,13 +2,13 @@
 /**
  * Required regex patterns to extract the payment information from an email.
  *
- * @link       https://GitHub.com/BrianHenryIE/bh-wc-order-email-reconcile
+ * @link       https://GitHub.com/BrianHenryIE/bh-wp-order-email-reconcile
  * @since      1.0.0
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile;
+namespace BrianHenryIE\WP_Order_Email_Reconcile;
 
 interface Email_Extract_Settings_Interface {
 

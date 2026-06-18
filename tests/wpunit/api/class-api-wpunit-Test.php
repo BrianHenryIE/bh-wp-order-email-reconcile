@@ -1,9 +1,9 @@
 <?php
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile\API;
+namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
 use BrianHenryIE\ColorLogger\ColorLogger;
-use BrianHenryIE\WC_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
 use BrianHenryIE\WP_Mailboxes\Mailbox_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\BH_WP_Mailboxes_Settings_Interface;
@@ -14,7 +14,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * @coversDefaultClass \BrianHenryIE\WC_Order_Email_Reconcile\API\API
+ * @coversDefaultClass \BrianHenryIE\WP_Order_Email_Reconcile\API\API
  */
 class API_WPUnit_Test extends \Codeception\TestCase\WPTestCase {
 

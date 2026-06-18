@@ -1,10 +1,10 @@
 <?php
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile_Test_Plugin;
+namespace BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin;
 
-use BrianHenryIE\WC_Order_Email_Reconcile\Email_Extract_Settings_Helper_Trait;
-use BrianHenryIE\WC_Order_Email_Reconcile\Email_Extract_Settings_Interface;
-use BrianHenryIE\WC_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Extract_Settings_Helper_Trait;
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Extract_Settings_Interface;
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 use BrianHenryIE\WP_Logger\API\Logger_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\Mailbox_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\Mailboxes_Settings_Helpers_Trait;
@@ -98,7 +98,7 @@ class Settings implements Email_Reconcile_Settings_Interface, Logger_Settings_In
 	 * @see Logger
 	 */
 	public function get_plugin_basename(): string {
-		return defined( 'BH_WP_ORDER_EMAIL_RECONCILE_TEST_PLUGIN_BASENAME' ) ? BH_WP_ORDER_EMAIL_RECONCILE_TEST_PLUGIN_BASENAME : 'bh-wc-order-email-reconcile/bh-wc-order-email-reconcile.php';
+		return defined( 'BH_WP_ORDER_EMAIL_RECONCILE_TEST_PLUGIN_BASENAME' ) ? BH_WP_ORDER_EMAIL_RECONCILE_TEST_PLUGIN_BASENAME : 'bh-wp-order-email-reconcile/bh-wp-order-email-reconcile.php';
 	}
 
 	/**

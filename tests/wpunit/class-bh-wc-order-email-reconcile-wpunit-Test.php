@@ -1,11 +1,11 @@
 <?php
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile;
+namespace BrianHenryIE\WP_Order_Email_Reconcile;
 
 /**
- * @coversDefaultClass \BrianHenryIE\WC_Order_Email_Reconcile\BH_WC_Order_Email_Reconcile
+ * @coversDefaultClass \BrianHenryIE\WP_Order_Email_Reconcile\BH_WP_Order_Email_Reconcile
  */
-class BH_WC_Order_Email_Reconcile_WPUnit_Test extends \Codeception\TestCase\WPTestCase {
+class BH_WP_Order_Email_Reconcile_WPUnit_Test extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * @covers ::instance
@@ -14,7 +14,7 @@ class BH_WC_Order_Email_Reconcile_WPUnit_Test extends \Codeception\TestCase\WPTe
 
 		$settings = $this->makeEmpty( Email_Reconcile_Settings_Interface::class );
 
-		$sut = BH_WC_Order_Email_Reconcile::instance( $settings );
+		$sut = BH_WP_Order_Email_Reconcile::instance( $settings );
 	}
 
 }

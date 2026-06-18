@@ -2,23 +2,23 @@
 /**
  *
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  * @author  BrianHenryIE <BrianHenryIE@gmail.com>
  */
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile\API;
+namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
 use BrianHenryIE\ColorLogger\ColorLogger;
-use BrianHenryIE\WC_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
-use BrianHenryIE\WC_Order_Email_Reconcile\API\Model\Email;
-use BrianHenryIE\WC_Order_Email_Reconcile\API\Model\Parsed_Email;
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
+use BrianHenryIE\WP_Order_Email_Reconcile\API\Model\Email;
+use BrianHenryIE\WP_Order_Email_Reconcile\API\Model\Parsed_Email;
 use Codeception\Stub\Expected;
 use Exception;
 use Psr\Log\NullLogger;
 use WC_Order;
 
 /**
- * @coversDefaultClass  \BrianHenryIE\WC_Order_Email_Reconcile\API\Email_Reconciler
+ * @coversDefaultClass  \BrianHenryIE\WP_Order_Email_Reconcile\API\Email_Reconciler
  */
 class Email_Reconciler_WP_Unit_Test extends \Codeception\TestCase\WPTestCase {
 

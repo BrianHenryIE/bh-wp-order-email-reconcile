@@ -1,6 +1,6 @@
 <?php
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile\WooCommerce;
+namespace BrianHenryIE\WP_Order_Email_Reconcile\WooCommerce;
 
 class Credentials_Settings_Fields {
 
@@ -21,9 +21,9 @@ class Credentials_Settings_Fields {
 	public function append_imap_reconcile_fields( array $form_fields ) {
 
 		$form_fields['email_server'] = array(
-			'title'             => __( 'Email server', 'bh-wc-order-email-reconcile' ),
+			'title'             => __( 'Email server', 'bh-wp-order-email-reconcile' ),
 			'type'              => 'text',
-			'description'       => __( 'IMAP server or IP address.', 'bh-wc-order-email-reconcile' ),
+			'description'       => __( 'IMAP server or IP address.', 'bh-wp-order-email-reconcile' ),
 			'desc_tip'          => true,
 			'custom_attributes' => array(
 				'autocomplete'   => 'off',
@@ -35,9 +35,9 @@ class Credentials_Settings_Fields {
 		);
 
 		$form_fields['email_username'] = array(
-			'title'             => __( 'Email username', 'bh-wc-order-email-reconcile' ),
+			'title'             => __( 'Email username', 'bh-wp-order-email-reconcile' ),
 			'type'              => 'text',
-			'description'       => __( 'Login username for email address payment receipts are mailed to.', 'bh-wc-order-email-reconcile' ),
+			'description'       => __( 'Login username for email address payment receipts are mailed to.', 'bh-wp-order-email-reconcile' ),
 			'desc_tip'          => true,
 			'custom_attributes' => array(
 				'autocomplete'  => 'off',
@@ -48,7 +48,7 @@ class Credentials_Settings_Fields {
 		);
 
 		$form_fields['email_password'] = array(
-			'title'             => __( 'Email account password', 'bh-wc-order-email-reconcile' ),
+			'title'             => __( 'Email account password', 'bh-wp-order-email-reconcile' ),
 			'type'              => 'password',
 			'custom_attributes' => array(
 				'autocomplete'  => 'off',
@@ -58,16 +58,16 @@ class Credentials_Settings_Fields {
 		);
 
 		$form_fields['after_reconcile_email_action'] = array(
-			'title'       => __( 'After reconcile action', 'bh-wc-order-email-reconcile' ),
+			'title'       => __( 'After reconcile action', 'bh-wp-order-email-reconcile' ),
 			'type'        => 'select',
 			'class'       => 'wc-enhanced-select',
-			'description' => __( 'Action to take after an email is matched to an order.', 'bh-wc-order-email-reconcile' ),
+			'description' => __( 'Action to take after an email is matched to an order.', 'bh-wp-order-email-reconcile' ),
 			'default'     => 'mark_read',
 			'desc_tip'    => true,
 			'options'     => array(
-				'nothing'   => __( 'Nothing', 'bh-wc-order-email-reconcile' ),
-				'mark_read' => __( 'Mark email read', 'bh-wc-order-email-reconcile' ),
-				'delete'    => __( 'Delete email', 'bh-wc-order-email-reconcile' ),
+				'nothing'   => __( 'Nothing', 'bh-wp-order-email-reconcile' ),
+				'mark_read' => __( 'Mark email read', 'bh-wp-order-email-reconcile' ),
+				'delete'    => __( 'Delete email', 'bh-wp-order-email-reconcile' ),
 			),
 		);
 

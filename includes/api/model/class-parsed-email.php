@@ -2,13 +2,13 @@
 /**
  * The information extracted from the email using the regex patterns.
  *
- * @link       https://GitHub.com/BrianHenryIE/bh-wc-order-email-reconcile
+ * @link       https://GitHub.com/BrianHenryIE/bh-wp-order-email-reconcile
  * @since      1.0.0
  *
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile\API\Model;
+namespace BrianHenryIE\WP_Order_Email_Reconcile\API\Model;
 
 use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
 

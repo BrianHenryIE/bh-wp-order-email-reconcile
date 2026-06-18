@@ -1,6 +1,6 @@
 <?php
 /**
- * @package brianhenryie/bh-wc-order-email-reconcile
+ * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
 $GLOBALS['project_root_dir']   = $project_root_dir  = dirname( __FILE__, 2 );

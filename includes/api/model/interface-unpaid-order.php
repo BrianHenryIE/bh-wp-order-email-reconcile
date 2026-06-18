@@ -1,6 +1,6 @@
 <?php
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile\API\Model;
+namespace BrianHenryIE\WP_Order_Email_Reconcile\API\Model;
 
 interface Unpaid_Order {
 

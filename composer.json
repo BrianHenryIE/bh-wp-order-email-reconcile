@@ -1,5 +1,5 @@
 {
-    "name": "brianhenryie/bh-wc-order-email-reconcile",
+    "name": "brianhenryie/bh-wp-order-email-reconcile",
     "license": "GPL-2.0-or-later",
     "description": "Class to check an inbox for emails confirming payment for WooCommerce.",
     "type": "wordpress-library",
