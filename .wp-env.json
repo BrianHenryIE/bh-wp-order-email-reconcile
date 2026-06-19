@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/wp-env.json",
+  "config": {
+    "WP_DEBUG": true,
+    "WP_DEBUG_LOG": "/var/www/html/wp-content/debug.log",
+    "WP_DEBUG_DISPLAY": false,
+    "SCRIPT_DEBUG": true
+  },
+  "mappings": {
+    "wp-content/plugins/development-plugin": "./development-plugin",
+    "wp-content/plugins/give": "./wp-content/plugins/give",
+    "wp-content/plugins/woocommerce": "./wp-content/plugins/woocommerce",
+    "wp-content/plugins/wp-crontrol": "./wp-content/plugins/wp-crontrol",
+    "wp-content/uploads/bh-wp-mailboxes": "../bh-wp-mailboxes",
+    "wp-content/uploads/bh-wp-order-email-reconcile": "."
+  },
+  "env": {
+    "tests": {
+      "mysqlPort": 33066
+    }
+  },
+  "lifecycleScripts": {
+    "afterStart": "wp-env run cli sudo chmod -R a+w /var/www/html/wp-content/uploads/; wp-env run cli mkdir -p /var/www/html/wp-content/uploads/logs/; wp-env run cli wp plugin activate woocommerce development-plugin"
+  },
+  "phpVersion": "8.4",
+  "core": "WordPress/WordPress#7.0"
+}

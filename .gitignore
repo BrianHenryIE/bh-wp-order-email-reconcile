@@ -52,3 +52,13 @@ scratch
 auth.json
 
 *.zip
+*.phar
+
+# Node / Playwright / wp-env
+node_modules
+/playwright-report
+/test-results
+/.playwright-mcp
+/tests/e2e-pw/.auth
+/tests/_data/emails
+/tests/_data/temp

@@ -1,0 +1,115 @@
+<?php
+/**
+ * Unit tests for the core API.
+ *
+ * The API depends only on the Unpaid_Orders_Provider_Interface and Email_Reconciler, never on a
+ * concrete integration. These tests assert that contract.
+ *
+ * @package brianhenryie/bh-wp-order-email-reconcile
+ * @author  BrianHenryIE <BrianHenryIE@gmail.com>
+ */
+
+namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
+
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
+use BrianHenryIE\WP_Mailboxes\API\API as Mailboxes_API;
+use BrianHenryIE\WP_Mailboxes\BH_Email_Account;
+use Mockery;
+use Psr\Log\NullLogger;
+use WP_Mock;
+
+/**
+ * @coversDefaultClass \BrianHenryIE\WP_Order_Email_Reconcile\API\API
+ */
+class API_Unit_Test extends \Codeception\Test\Unit {
+
+	protected function _before() {
+		WP_Mock::setUp();
+		WP_Mock::userFunction( 'add_action' );
+	}
+
+	protected function _tearDown() {
+		WP_Mock::tearDown();
+		Mockery::close();
+		parent::_tearDown();
+	}
+
+	/**
+	 * BH_Email_Account is a readonly class (it cannot be mocked), so build a real instance.
+	 *
+	 * @param string $display_name The account's friendly display name.
+	 */
+	protected function make_account( string $display_name = 'test@example.org' ): BH_Email_Account {
+		return new BH_Email_Account(
+			post_id: 1,
+			post_type: 'test_email_accounts',
+			local_status: 'publish',
+			provider_type_class: 'Test_Provider',
+			email_address: $display_name,
+			display_name: $display_name,
+			from_address_regex_filter: null,
+			body_identifier_regex_filter: null,
+			after_download_remote_email_action: null,
+			delete_local_emails_after_n_days: null,
+			last_checked_time: null,
+			last_successful_login_time: null,
+			last_failed_login_time: null,
+		);
+	}
+
+	/**
+	 * With no emails to process, the provider is never queried.
+	 *
+	 * @covers ::process_new_emails
+	 */
+	public function test_no_emails_returns_early(): void {
+
+		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
+		$settings->shouldReceive( 'get_plugin_slug' )->andReturn( 'test-plugin' );
+
+		$provider = Mockery::mock( Unpaid_Orders_Provider_Interface::class );
+		$provider->shouldNotReceive( 'get_unpaid_orders' );
+
+		$reconciler = Mockery::mock( Email_Reconciler::class );
+
+		$sut = new API( $settings, $provider, $reconciler, new NullLogger() );
+
+		$account   = $this->make_account();
+		$mailboxes = Mockery::mock( Mailboxes_API::class );
+
+		$result = $sut->process_new_emails( array(), $account, $mailboxes );
+
+		$this->assertSame( 0, $result['num_emails'] );
+		$this->assertSame( 0, $result['reconciled'] );
+	}
+
+	/**
+	 * With emails but no unpaid orders, nothing is reconciled.
+	 *
+	 * @covers ::process_new_emails
+	 */
+	public function test_emails_but_no_unpaid_orders(): void {
+
+		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
+		$settings->shouldReceive( 'get_plugin_slug' )->andReturn( 'test-plugin' );
+
+		$provider = Mockery::mock( Unpaid_Orders_Provider_Interface::class );
+		$provider->shouldReceive( 'get_unpaid_orders' )->once()->andReturn( array() );
+
+		$reconciler = Mockery::mock( Email_Reconciler::class );
+		$reconciler->shouldNotReceive( 'reconcile_emails' );
+
+		$sut = new API( $settings, $provider, $reconciler, new NullLogger() );
+
+		$account   = $this->make_account();
+		$mailboxes = Mockery::mock( Mailboxes_API::class );
+
+		// BH_Email is a readonly class and is never inspected on the no-unpaid-orders path; a
+		// single placeholder element is enough to exercise the count.
+		$result = $sut->process_new_emails( array( 'email-placeholder' ), $account, $mailboxes );
+
+		$this->assertSame( 1, $result['num_emails'] );
+		$this->assertSame( 0, $result['num_unpaid_orders'] );
+		$this->assertSame( 0, $result['reconciled'] );
+	}
+}

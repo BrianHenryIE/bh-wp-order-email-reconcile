@@ -22,14 +22,13 @@ params:
 coverage:
     enabled: true
     include:
-        - src/*
+        - includes/*
     exclude:
-        - src/dependencies/*
-        - src/vendor/*
+        - /vendor/*
+        - /vendor-prefixed/*
+        - /tests/*
+        - /scratch/*
+        - /wordpress/*
         - /*/index.php
-        - /*/*.txt
-        - src/autoload.php
-        - src/autoload-classmap.php
-        - /*/*.css
-        - /*/*.js
+        - /*/interface-*.*
 bootstrap: bootstrap.php

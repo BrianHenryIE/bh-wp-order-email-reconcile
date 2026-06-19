@@ -8,6 +8,8 @@
  * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
+declare(strict_types=1);
+
 namespace BrianHenryIE\WP_Order_Email_Reconcile;
 
 use BrianHenryIE\WP_Mailboxes\BH_WP_Mailboxes_Settings_Interface;
@@ -42,5 +44,4 @@ interface Email_Reconcile_Settings_Interface extends BH_WP_Mailboxes_Settings_In
 	 * @return ?string
 	 */
 	public function get_customer_payment_id_meta_key(): ?string;
-
 }

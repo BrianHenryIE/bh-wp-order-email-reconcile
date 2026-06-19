@@ -8,6 +8,8 @@
  * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
+declare(strict_types=1);
+
 namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Model\Parsed_Email;
@@ -70,19 +72,19 @@ class Email_Parser {
 	 *
 	 * @param BH_Email $email Text or HTML email body to search.
 	 *
-	 * @return ?Parsed_Email
+	 * @return Parsed_Email
 	 */
-	public function parse_email( BH_Email $email ): ?Parsed_Email {
+	public function parse_email( BH_Email $email ): Parsed_Email {
 
 		$parsed_values_arrays = array();
 
 		// Run all patterns on the email plain-text and email html content.
 		foreach ( $this->patterns as $pattern_set ) {
-			if ( ! empty( $email->get_body_plain_text() ) ) {
-				$parsed_values_arrays[] = $this->parse_email_with_pattern_set( $email->get_body_plain_text(), $pattern_set );
+			if ( ! empty( $email->body_plain_text ) ) {
+				$parsed_values_arrays[] = $this->parse_email_with_pattern_set( $email->body_plain_text, $pattern_set );
 			}
-			if ( ! empty( $email->get_body_html() ) ) {
-				$parsed_values_arrays[] = $this->parse_email_with_pattern_set( $email->get_body_html(), $pattern_set );
+			if ( ! empty( $email->body_html ) ) {
+				$parsed_values_arrays[] = $this->parse_email_with_pattern_set( $email->body_html, $pattern_set );
 			}
 		}
 
@@ -92,11 +94,11 @@ class Email_Parser {
 
 		// I think array_merge or similar can do this.
 		// Take the last one, presuming the newest pattern set is most likely to be correct.
-		$parsed_email_array = array_pop( $parsed_values_arrays );
+		$parsed_email_array = array_pop( $parsed_values_arrays ) ?? array();
 		// Then fill in any missing properties from earlier patterns.
 		$parsed_email_array = array_reduce(
 			$parsed_values_arrays,
-			function( array $parsed_email, array $next_parsed_email ) {
+			function ( array $parsed_email, array $next_parsed_email ): array {
 				foreach ( $next_parsed_email as $key => $value ) {
 					if ( ! isset( $parsed_email[ $key ] ) ) {
 						$parsed_email[ $key ] = $value;
@@ -115,7 +117,8 @@ class Email_Parser {
 	 *
 	 * @param string                           $email_body A text or HTML email expected to contain payment information.
 	 * @param Email_Extract_Settings_Interface $pattern_set Regex patters for extracting the payment information.
-	 * @return array
+	 * @return array<string, mixed>
+	 * @throws Exception When new-line normalisation of the email body fails.
 	 */
 	protected function parse_email_with_pattern_set( string $email_body, Email_Extract_Settings_Interface $pattern_set ): array {
 
@@ -162,5 +165,4 @@ class Email_Parser {
 
 		return $email_properties;
 	}
-
 }

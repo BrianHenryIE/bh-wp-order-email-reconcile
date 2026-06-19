@@ -8,30 +8,80 @@
  * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
+declare(strict_types=1);
+
 namespace BrianHenryIE\WP_Order_Email_Reconcile\API\Model;
 
 use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
 
+/**
+ * Value object holding the payment values extracted from one email.
+ */
 class Parsed_Email {
 
+	/**
+	 * The email this data was parsed from.
+	 *
+	 * @var BH_Email
+	 */
 	protected BH_Email $original_email;
 
-	protected ?string $amount          = null;
-	protected ?string $customer_id     = null;
-	protected ?string $customer_email  = null;
-	protected ?string $customer_name   = null;
-	protected ?string $transaction_id  = null;
+	/**
+	 * The payment amount, as a numeric string, or null if not found.
+	 *
+	 * @var ?string
+	 */
+	protected ?string $amount = null;
+
+	/**
+	 * The customer's payment-platform id (e.g. Venmo username), or null if not found.
+	 *
+	 * @var ?string
+	 */
+	protected ?string $customer_id = null;
+
+	/**
+	 * The customer's email address, or null if not found.
+	 *
+	 * @var ?string
+	 */
+	protected ?string $customer_email = null;
+
+	/**
+	 * The customer's name, or null if not found.
+	 *
+	 * @var ?string
+	 */
+	protected ?string $customer_name = null;
+
+	/**
+	 * The payment-platform transaction id, or null if not found.
+	 *
+	 * @var ?string
+	 */
+	protected ?string $transaction_id = null;
+
+	/**
+	 * A url to the transaction on the payment platform, or null if not found.
+	 *
+	 * @var ?string
+	 */
 	protected ?string $transaction_url = null;
 
-	/** @var string[] */
+	/**
+	 * Free-text notes extracted from the email, keyed by note name.
+	 *
+	 * @var ?string[]
+	 */
 	protected ?array $notes = array();
 
 	/**
+	 * Populate the object from the array of values parsed out of the email.
+	 *
 	 * A lazy init to bridge between the old and new ways.
 	 *
-	 * Parsed_Email constructor.
-	 *
-	 * @param string[] $email_properties
+	 * @param array<string, mixed> $email_properties Parsed values keyed by property name.
+	 * @param BH_Email             $original_email   The email the values were parsed from.
 	 */
 	public function __construct( array $email_properties, BH_Email $original_email ) {
 
@@ -40,14 +90,20 @@ class Parsed_Email {
 			$this->$key = $value;
 		}
 		$this->original_email = $original_email;
-
 	}
 
+	/**
+	 * The email this data was parsed from.
+	 *
+	 * @return BH_Email
+	 */
 	public function get_bh_email(): BH_Email {
 		return $this->original_email;
 	}
 
 	/**
+	 * The payment amount.
+	 *
 	 * Will be null if not found in the email.
 	 *
 	 * Returning a string to match WC_Order return type.
@@ -61,13 +117,17 @@ class Parsed_Email {
 	}
 
 	/**
-	 * @param ?string $amount
+	 * Set the payment amount.
+	 *
+	 * @param ?string $amount The amount as a numeric string.
 	 */
 	public function set_amount( ?string $amount ): void {
 		$this->amount = $amount;
 	}
 
 	/**
+	 * The customer's payment-platform id, lowercased for case-insensitive matching.
+	 *
 	 * @return ?string
 	 */
 	public function get_customer_id(): ?string {
@@ -78,13 +138,17 @@ class Parsed_Email {
 	}
 
 	/**
-	 * @param string|null $customer_id
+	 * Set the customer's payment-platform id.
+	 *
+	 * @param string|null $customer_id The id, e.g. Venmo username.
 	 */
 	public function set_customer_id( ?string $customer_id ): void {
 		$this->customer_id = $customer_id;
 	}
 
 	/**
+	 * The customer's email address.
+	 *
 	 * @return string|null
 	 */
 	public function get_customer_email(): ?string {
@@ -92,13 +156,17 @@ class Parsed_Email {
 	}
 
 	/**
-	 * @param string|null $customer_email
+	 * Set the customer's email address.
+	 *
+	 * @param string|null $customer_email The email address.
 	 */
 	public function set_customer_email( ?string $customer_email ): void {
 		$this->customer_email = $customer_email;
 	}
 
 	/**
+	 * The customer's name.
+	 *
 	 * @return string|null
 	 */
 	public function get_customer_name(): ?string {
@@ -106,13 +174,17 @@ class Parsed_Email {
 	}
 
 	/**
-	 * @param string|null $customer_name
+	 * Set the customer's name.
+	 *
+	 * @param string|null $customer_name The customer name.
 	 */
 	public function set_customer_name( ?string $customer_name ): void {
 		$this->customer_name = $customer_name;
 	}
 
 	/**
+	 * The payment-platform transaction id.
+	 *
 	 * @return string|null
 	 */
 	public function get_transaction_id(): ?string {
@@ -120,13 +192,17 @@ class Parsed_Email {
 	}
 
 	/**
-	 * @param string|null $transaction_id
+	 * Set the payment-platform transaction id.
+	 *
+	 * @param string|null $transaction_id The transaction id.
 	 */
 	public function set_transaction_id( ?string $transaction_id ): void {
 		$this->transaction_id = $transaction_id;
 	}
 
 	/**
+	 * A url to the transaction on the payment platform.
+	 *
 	 * @return string|null
 	 */
 	public function get_transaction_url(): ?string {
@@ -134,13 +210,17 @@ class Parsed_Email {
 	}
 
 	/**
-	 * @param string|null $transaction_url
+	 * Set the transaction url.
+	 *
+	 * @param string|null $transaction_url The transaction url.
 	 */
 	public function set_transaction_url( ?string $transaction_url ): void {
 		$this->transaction_url = $transaction_url;
 	}
 
 	/**
+	 * The notes to record on the order, including transaction id/url when present.
+	 *
 	 * @return string[]
 	 */
 	public function get_notes(): array {
@@ -159,7 +239,9 @@ class Parsed_Email {
 	}
 
 	/**
-	 * @param string[] $notes
+	 * Set the parsed notes.
+	 *
+	 * @param string[] $notes Notes keyed by note name.
 	 */
 	public function set_notes( ?array $notes ): void {
 		$this->notes = $notes;
@@ -184,6 +266,4 @@ class Parsed_Email {
 		}
 		return array();
 	}
-
-
 }

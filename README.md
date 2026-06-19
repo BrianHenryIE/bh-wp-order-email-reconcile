@@ -1,27 +1,48 @@
-[![WordPress tested 5.5](https://img.shields.io/badge/WordPress-v5.5%20tested-0073aa.svg)](https://wordpress.org/plugins/plugin_slug) [![PHPCS WPCS](https://img.shields.io/badge/PHPCS-WordPress%20Coding%20Standards-8892BF.svg)](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards) [![PHPUnit ](.github/coverage.svg)](https://brianhenryie.github.io/plugin_slug/)
+[![PHPCS WPCS](https://img.shields.io/badge/PHPCS-WordPress%20Coding%20Standards-8892BF.svg)](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards)
 
 # BH WP Order Email Reconcile
 
-Use payment confirmation emails to automatically mark orders as paid.
+Mark orders as paid by reconciling payment-confirmation emails against unpaid orders.
 
-Uses BH WP Mailboxes to fetch emails 
+Emails are fetched and stored by [BH WP Mailboxes](https://github.com/BrianHenryIE/bh-wp-mailboxes/).
+When new emails arrive, this library parses them and matches them to unpaid orders by order id
+(from the payment note), customer payment id (e.g. Venmo/$CashTag), email address, then name.
 
-Add a cron job
+The core is **integration-agnostic**: it deals only with `Unpaid_Order` objects supplied by an
+`Unpaid_Orders_Provider_Interface`. WooCommerce is supported today; GiveWP is scaffolded as a
+second integration. See [`ARCHITECTURE.md`](ARCHITECTURE.md) and [`PLAN.md`](PLAN.md).
 
-Get IMAP settings
+## Usagew
 
-Have a template
+```php
+add_action( 'plugins_loaded', function () {
+    $settings = new My_Reconcile_Settings(); // implements Email_Reconcile_Settings_Interface
+    $logger   = Logger::instance( $settings );
+    BH_WP_Order_Email_Reconcile::make( $settings, $logger );
+} );
+```
 
-Filter orders by gateway class. 
+Email accounts (server, credentials, filters) are configured through the BH WP Mailboxes API; this
+library never stores credentials.
 
-https://github.com/BrianHenryIE/bh-wp-mailboxes/
+## Development
 
+```bash
+composer install
+composer dump-autoload          # after adding/renaming classes
 
-Development plugin:
+# Lint + static analysis
+composer lint                   # phpcbf + phpcs + phpstan
 
-Fake WooCommerce gateway.
-Place fake order.
-Configure BH WP Order Email Reconcile with test mailbox credentials.
-Send fake email to test mailbox.
+# Unit + wpunit tests (needs the wp-env DB on port 33066)
+npm install
+npm run wp-env:start
+vendor/bin/codecept run unit
+vendor/bin/codecept run wpunit
 
-If there are unrecnociled emails there should be an admin notice.
+# End-to-end (Playwright, against wp-env on :8888)
+npm run test:e2e
+```
+
+The development plugin provides a fake WooCommerce gateway, places a fake order, configures the
+library with test mailbox credentials, and sends a fake payment email to verify reconciliation.

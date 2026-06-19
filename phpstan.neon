@@ -1,8 +1,20 @@
 parameters:
     level: 8
     paths:
-        - src
+        - includes
+        - development-plugin
+    excludePaths:
+        # GiveWP is an unverified, optional integration. Its backing plugin and stubs are not
+        # installed here, so its symbols (Give_Payment, give_*()) cannot be resolved. Install GiveWP
+        # and add it to scanDirectories to type-check this integration. See ARCHITECTURE.md.
+        - includes/integrations/givewp/*
     bootstrapFiles:
-        - %rootDir%/../../php-stubs/wordpress-stubs/wordpress-stubs.php
-        - %rootDir%/../../php-stubs/woocommerce-stubs/woocommerce-stubs.php
-        #- %rootDir%/../../php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+        - vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
+    scanDirectories:
+        - wp-content/plugins
+    dynamicConstantNames:
+        - BH_WP_ORDER_EMAIL_RECONCILE_TEST_PLUGIN_BASENAME
+        - BH_WP_ORDER_EMAIL_RECONCILE_TEST_PLUGIN_VERSION
+    ignoreErrors:
+        - '#LoggerInterface\|null#'

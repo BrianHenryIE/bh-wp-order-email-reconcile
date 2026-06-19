@@ -8,6 +8,8 @@
  * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
+declare(strict_types=1);
+
 namespace BrianHenryIE\WP_Order_Email_Reconcile;
 
 interface Email_Extract_Settings_Interface {
@@ -70,5 +72,4 @@ interface Email_Extract_Settings_Interface {
 	 * @return ?string
 	 */
 	public function get_transaction_url_regex(): ?string;
-
 }

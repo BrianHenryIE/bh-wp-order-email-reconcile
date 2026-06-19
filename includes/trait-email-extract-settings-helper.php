@@ -9,6 +9,8 @@
  * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
+declare(strict_types=1);
+
 namespace BrianHenryIE\WP_Order_Email_Reconcile;
 
 trait Email_Extract_Settings_Helper_Trait {
@@ -76,5 +78,4 @@ trait Email_Extract_Settings_Helper_Trait {
 	public function get_transaction_url_regex(): ?string {
 		return null;
 	}
-
 }

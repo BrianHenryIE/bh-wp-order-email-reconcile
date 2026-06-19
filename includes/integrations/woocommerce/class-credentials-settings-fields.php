@@ -1,7 +1,17 @@
 <?php
+/**
+ * WooCommerce Settings API fields for the email account credentials.
+ *
+ * @package brianhenryie/bh-wp-order-email-reconcile
+ */
 
-namespace BrianHenryIE\WP_Order_Email_Reconcile\WooCommerce;
+declare(strict_types=1);
 
+namespace BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce;
+
+/**
+ * Adds username/password/server fields to a WooCommerce Settings API screen.
+ */
 class Credentials_Settings_Fields {
 
 	/**
@@ -16,7 +26,8 @@ class Credentials_Settings_Fields {
 	 *
 	 * @see \WC_Admin_Settings::output_fields()
 	 *
-	 * @return array
+	 * @param array<string, mixed> $form_fields Existing settings fields to append to.
+	 * @return array<string, mixed>
 	 */
 	public function append_imap_reconcile_fields( array $form_fields ) {
 
