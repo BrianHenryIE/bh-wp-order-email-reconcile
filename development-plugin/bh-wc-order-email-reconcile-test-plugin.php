@@ -52,6 +52,7 @@ unset( $bh_wp_oer_autoload_candidates, $bh_wp_oer_autoload );
 define( 'BH_WP_ORDER_EMAIL_RECONCILE_TEST_PLUGIN_VERSION', '1.0.0' );
 define( 'BH_WP_ORDER_EMAIL_RECONCILE_TEST_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
+new Mappings()->register_hooks();
 
 /**
  * Instantiate the library with hard-coded test settings.
