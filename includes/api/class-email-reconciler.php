@@ -31,6 +31,26 @@ class Email_Reconciler {
 	use LoggerAwareTrait;
 
 	/**
+	 * Order meta key recording the Message-ID of the email that reconciled the order.
+	 */
+	const ORDER_META_EMAIL_MESSAGE_ID = 'bh_wp_oer_email_message_id';
+
+	/**
+	 * Order meta key recording the post id of the reconciling email (for linking while it exists).
+	 */
+	const ORDER_META_EMAIL_POST_ID = 'bh_wp_oer_email_post_id';
+
+	/**
+	 * Email post meta key recording the id of the order the email reconciled.
+	 */
+	const EMAIL_META_ORDER_ID = 'bh_wp_oer_reconciled_order_id';
+
+	/**
+	 * Email post meta key recording the integration that owns the reconciled order.
+	 */
+	const EMAIL_META_ORDER_INTEGRATION = 'bh_wp_oer_reconciled_order_integration';
+
+	/**
 	 * Index of unpaid orders keyed by the various values that may appear in a payment email.
 	 *
 	 * Shape:
@@ -228,6 +248,13 @@ class Email_Reconciler {
 
 		$transaction_id = $parsed_email->get_transaction_id() ?? '';
 
+		// Record the source email so the order and email can be cross-linked in the admin.
+		$bh_email      = $parsed_email->get_bh_email();
+		$message_id    = $bh_email->message_id;
+		$email_post_id = $bh_email->get_post_id();
+
+		$notes .= '<em>Email message id</em> ' . esc_html( $message_id ) . "<br/>\n";
+
 		$order->mark_paid( $transaction_id );
 		$order->add_note( $notes );
 
@@ -235,7 +262,16 @@ class Email_Reconciler {
 			$order->add_meta( 'transaction_url', $parsed_email->get_transaction_url() );
 		}
 
+		$order->add_meta( self::ORDER_META_EMAIL_MESSAGE_ID, $message_id );
+		$order->add_meta( self::ORDER_META_EMAIL_POST_ID, (string) $email_post_id );
+
 		$order->save();
+
+		// Reverse link: record the reconciled order on the email post (for the email log → order link).
+		if ( $email_post_id > 0 ) {
+			update_post_meta( $email_post_id, self::EMAIL_META_ORDER_ID, (string) $order->get_order_id() );
+			update_post_meta( $email_post_id, self::EMAIL_META_ORDER_INTEGRATION, $order->get_integration() );
+		}
 
 		// TODO: $parsed_email->after_reconcile(); (mark email read / delete per settings).
 

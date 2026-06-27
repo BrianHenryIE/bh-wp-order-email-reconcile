@@ -15,6 +15,7 @@ use BrianHenryIE\WP_Order_Email_Reconcile\API\Email_Reconciler;
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Unpaid_Orders_Provider_Interface;
 use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\GiveWP\Give_Unpaid_Orders_Provider;
 use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce\WC_Order_Status_Listener;
+use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce\WC_Reconciliation_Admin;
 use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce\WC_Unpaid_Orders_Provider;
 use BrianHenryIE\WP_Order_Email_Reconcile\WP_Includes\Cron_Scheduler;
 use BrianHenryIE\WP_Mailboxes\BH_WP_Mailboxes;
@@ -59,6 +60,11 @@ class BH_WP_Order_Email_Reconcile extends API {
 		$cron_scheduler = new Cron_Scheduler( $settings, $unpaid_orders_provider, $logger );
 		add_action( 'plugins_loaded', array( $cron_scheduler, 'enforce_cron_schedule' ), Cron_Scheduler::PLUGINS_LOADED_PRIORITY );
 		new WC_Order_Status_Listener( $cron_scheduler, $logger );
+
+		// Admin cross-links between reconciled orders and their payment emails.
+		if ( is_admin() ) {
+			new WC_Reconciliation_Admin( $settings, $logger );
+		}
 
 		$email_reconciler = new Email_Reconciler( $settings, $logger );
 

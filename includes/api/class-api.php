@@ -18,7 +18,6 @@ namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
 use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
-use BrianHenryIE\WP_Mailboxes\BH_Email_Account;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -47,11 +46,15 @@ class API {
 
 		add_action(
 			'bh_wp_mailboxes_fetch_emails_saved_' . $this->settings->get_plugin_slug(),
-			function ( array $new_payment_emails, BH_Email_Account $account, \BrianHenryIE\WP_Mailboxes\API\API $mailboxes ): void {
-				$this->process_new_emails( $new_payment_emails, $account, $mailboxes );
+			function ( $new_payment_emails ): void {
+				// WordPress's do_action() unwraps a single-object array (legacy array( &$this )
+				// back-compat), so when exactly one email is saved it arrives as a BH_Email rather
+				// than a BH_Email[]. Normalise back to an array.
+				$emails = is_array( $new_payment_emails ) ? $new_payment_emails : array( $new_payment_emails );
+				$this->process_new_emails( $emails );
 			},
 			10,
-			3
+			1
 		);
 	}
 
@@ -61,16 +64,12 @@ class API {
 	 * @hooked bh_wp_mailboxes_fetch_emails_saved_{plugin-slug}
 	 * @see \BrianHenryIE\WP_Mailboxes\API\API::check_email()
 	 *
-	 * @param BH_Email[]                         $new_payment_emails The emails saved during the latest fetch.
-	 * @param BH_Email_Account                   $account            The account the emails were fetched for.
-	 * @param \BrianHenryIE\WP_Mailboxes\API\API $mailboxes          The mailboxes API (for marking emails read etc.).
+	 * @param BH_Email[] $new_payment_emails The emails saved during the latest fetch.
 	 *
 	 * @return array{success:bool, num_emails:int, num_unpaid_orders:?int, reconciled:int}
 	 */
 	public function process_new_emails(
-		array $new_payment_emails,
-		BH_Email_Account $account,
-		\BrianHenryIE\WP_Mailboxes\API\API $mailboxes
+		array $new_payment_emails
 	): array {
 
 		if ( 0 === count( $new_payment_emails ) ) {
@@ -86,7 +85,7 @@ class API {
 
 		// Nothing to do if there are no unpaid orders.
 		if ( 0 === count( $unpaid_orders ) ) {
-			$this->logger->info( 'No unpaid orders found. Ending. ' . count( $new_payment_emails ) . ' emails found. Account: ' . $account->get_account_display_friendly_name() );
+			$this->logger->info( 'No unpaid orders found. Ending. ' . count( $new_payment_emails ) . ' emails found for ' . $this->settings->get_plugin_slug() . '.' );
 			return array(
 				'success'           => true,
 				'num_emails'        => count( $new_payment_emails ),
