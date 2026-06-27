@@ -12,8 +12,6 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
-        "process-timeout": 0,
-        "sort-packages": true,
         "allow-plugins": {
             "composer/installers": true,
             "cweagans/composer-patches": true,
@@ -23,7 +21,9 @@
         },
         "platform": {
             "php": "8.4"
-        }
+        },
+        "process-timeout": 0,
+        "sort-packages": true
     },
     "autoload": {
         "classmap": [
@@ -44,20 +44,30 @@
             "tests/_support"
         ]
     },
-    "repositories": [
-        {
+    "repositories": {
+        "wordpress/wordpress": {
+            "type": "git",
             "url": "https://github.com/WordPress/wordpress-develop.git",
-            "type": "git"
+            "only": [
+                "wordpress/wordpress"
+            ]
         },
-        {
+        "outlandish/wpackagist": {
             "type": "composer",
-            "url": "https://wpackagist.org"
+            "url": "https://wpackagist.org",
+            "only": [
+                "wpackagist-plugin/*",
+                "wpackagist-theme/*"
+            ]
         },
-        {
+        "brianhenryie/bh-wp-mailboxes": {
             "type": "path",
-            "url": "../bh-wp-mailboxes"
+            "url": "../bh-wp-mailboxes",
+            "only": [
+                "brianhenryie/bh-wp-mailboxes"
+            ]
         }
-    ],
+    },
     "require": {
         "php": ">=8.4",
         "ext-json": "*",
