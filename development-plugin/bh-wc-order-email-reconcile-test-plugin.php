@@ -85,6 +85,15 @@ function instantiate_bh_wp_order_email_reconcile_test_plugin() {
 			$logger
 		);
 		new REST_Controller( $mailboxes_api, $cron_scheduler, $settings, $logger );
+
+		// Admin order-edit UI: customer payment id field + "Fetch emails now" button.
+		new Admin\Order_UI( $mailboxes_api, $settings, $logger );
+
+		// Admin dev tools page: create order + send mock payment email.
+		$admin_page = new Admin\Admin_Page( $settings, $logger );
+
+		// Admin menu: top-level entry (below Dashboard) + emails submenu.
+		new Admin\Admin_Menu( $settings, array( $admin_page, 'render_page' ), $logger );
 	}
 
 	// Register the demo payment gateway whose orders this plugin reconciles.

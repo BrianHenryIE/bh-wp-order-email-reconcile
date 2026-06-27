@@ -27,7 +27,16 @@ class Extraction_Settings implements Email_Extract_Settings_Interface {
 	 * @return string
 	 */
 	public function get_amount_regex(): string {
-		return '~\$\d+\.\d{2}~';
+		return '~\$(\d+\.\d{2})~';
+	}
+
+	/**
+	 * Regex to find the customer's payment-platform id (e.g. Venmo handle / $CashTag).
+	 *
+	 * Matches the "Customer ID:" line produced by the dev admin page's "Send payment email".
+	 */
+	public function get_customer_id_regex(): ?string {
+		return '~Customer ID: (\S+)~';
 	}
 
 	/**

@@ -22,6 +22,11 @@ class Settings implements Email_Reconcile_Settings_Interface, Logger_Settings_In
 	use BH_WP_Mailboxes_Settings_Defaults_Trait;
 
 	/**
+	 * Order meta key storing the customer's payment-platform id (e.g. Venmo username).
+	 */
+	const CUSTOMER_PAYMENT_ID_META_KEY = '_customer_payment_id';
+
+	/**
 	 * Rules (sets of regex patterns) for extracting the data from the emails.
 	 *
 	 * @var Email_Extract_Settings_Interface[]
@@ -71,7 +76,7 @@ class Settings implements Email_Reconcile_Settings_Interface, Logger_Settings_In
 	 * @return ?string
 	 */
 	public function get_customer_payment_id_meta_key(): ?string {
-		return null;
+		return self::CUSTOMER_PAYMENT_ID_META_KEY;
 	}
 
 	/**
