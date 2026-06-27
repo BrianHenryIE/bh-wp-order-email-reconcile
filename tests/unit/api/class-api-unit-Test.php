@@ -12,8 +12,6 @@
 namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
 use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
-use BrianHenryIE\WP_Mailboxes\API\API as Mailboxes_API;
-use BrianHenryIE\WP_Mailboxes\BH_Email_Account;
 use Mockery;
 use Psr\Log\NullLogger;
 use WP_Mock;
@@ -35,29 +33,6 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 	}
 
 	/**
-	 * BH_Email_Account is a readonly class (it cannot be mocked), so build a real instance.
-	 *
-	 * @param string $display_name The account's friendly display name.
-	 */
-	protected function make_account( string $display_name = 'test@example.org' ): BH_Email_Account {
-		return new BH_Email_Account(
-			post_id: 1,
-			post_type: 'test_email_accounts',
-			local_status: 'publish',
-			provider_type_class: 'Test_Provider',
-			email_address: $display_name,
-			display_name: $display_name,
-			from_address_regex_filter: null,
-			body_identifier_regex_filter: null,
-			after_download_remote_email_action: null,
-			delete_local_emails_after_n_days: null,
-			last_checked_time: null,
-			last_successful_login_time: null,
-			last_failed_login_time: null,
-		);
-	}
-
-	/**
 	 * With no emails to process, the provider is never queried.
 	 *
 	 * @covers ::process_new_emails
@@ -74,10 +49,7 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 
 		$sut = new API( $settings, $provider, $reconciler, new NullLogger() );
 
-		$account   = $this->make_account();
-		$mailboxes = Mockery::mock( Mailboxes_API::class );
-
-		$result = $sut->process_new_emails( array(), $account, $mailboxes );
+		$result = $sut->process_new_emails( array() );
 
 		$this->assertSame( 0, $result['num_emails'] );
 		$this->assertSame( 0, $result['reconciled'] );
@@ -101,12 +73,9 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 
 		$sut = new API( $settings, $provider, $reconciler, new NullLogger() );
 
-		$account   = $this->make_account();
-		$mailboxes = Mockery::mock( Mailboxes_API::class );
-
 		// BH_Email is a readonly class and is never inspected on the no-unpaid-orders path; a
 		// single placeholder element is enough to exercise the count.
-		$result = $sut->process_new_emails( array( 'email-placeholder' ), $account, $mailboxes );
+		$result = $sut->process_new_emails( array( 'email-placeholder' ) );
 
 		$this->assertSame( 1, $result['num_emails'] );
 		$this->assertSame( 0, $result['num_unpaid_orders'] );

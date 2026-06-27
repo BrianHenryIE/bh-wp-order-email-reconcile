@@ -8,6 +8,7 @@
 
 namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
+use BrianHenryIE\WP_Mailboxes\Models\BH_Email_Fixture;
 use BrianHenryIE\WP_Order_Email_Reconcile\Email_Extract_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
 use Mockery;
@@ -44,24 +45,6 @@ class Email_Parser_Unit_Test extends \Codeception\Test\Unit {
 	}
 
 	/**
-	 * A real BH_Email (it is a readonly class) with the given plain-text body.
-	 *
-	 * @param string $body_plain_text The email plain-text body.
-	 */
-	protected function make_email( string $body_plain_text ): BH_Email {
-		return new BH_Email(
-			post_id: 1,
-			post_type: 'test_payment_emails',
-			imessage: Mockery::mock( IMessage::class ),
-			message_id: 'msg-1',
-			subject: 'Payment received',
-			from_email: 'payments@example.org',
-			body_plain_text: $body_plain_text,
-			body_html: '',
-		);
-	}
-
-	/**
 	 * The parser extracts amount, email, transaction id and the order id from the note.
 	 *
 	 * @covers ::parse_email
@@ -70,7 +53,7 @@ class Email_Parser_Unit_Test extends \Codeception\Test\Unit {
 	public function test_parses_payment_values_from_plain_text(): void {
 
 		$body  = 'Payment of $12.34 received. Email: jane@example.org Txn: ABC123 Order 42';
-		$email = $this->make_email( $body );
+		$email = BH_Email_Fixture::create( body_plain_text: $body, body_html: '' );
 
 		$parser = new Email_Parser( array( $this->make_pattern_set() ), new NullLogger() );
 
@@ -90,7 +73,8 @@ class Email_Parser_Unit_Test extends \Codeception\Test\Unit {
 	 */
 	public function test_no_matches_returns_empty_parsed_email(): void {
 
-		$email = $this->make_email( 'Nothing of interest here.' );
+		$body  = 'Nothing of interest here.';
+		$email = BH_Email_Fixture::create( body_plain_text: $body, body_html: '' );
 
 		$parser = new Email_Parser( array( $this->make_pattern_set() ), new NullLogger() );
 
@@ -108,8 +92,8 @@ class Email_Parser_Unit_Test extends \Codeception\Test\Unit {
 	public function test_parse_emails_returns_one_result_per_email(): void {
 
 		$emails = array(
-			$this->make_email( 'Payment of $1.00. Email: a@example.org' ),
-			$this->make_email( 'Payment of $2.00. Email: b@example.org' ),
+			BH_Email_Fixture::create( body_plain_text: 'Payment of $1.00. Email: a@example.org', body_html: '' ),
+			BH_Email_Fixture::create( body_plain_text: 'Payment of $2.00. Email: b@example.org', body_html: '' ),
 		);
 
 		$parser = new Email_Parser( array( $this->make_pattern_set() ), new NullLogger() );
