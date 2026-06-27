@@ -19,12 +19,15 @@ process.env.WP_BASE_URL = WP_BASE_URL;
 
 export default defineConfig( {
 	testDir: './tests/e2e-pw/specs',
-	fullyParallel: true,
+	// The tests share one wp-env database (orders, the cron flag/schedule, email accounts), so they
+	// must run serially to avoid cross-test interference.
+	fullyParallel: false,
 	forbidOnly: !! process.env.CI,
 	retries: process.env.CI ? 2 : 0,
-	workers: process.env.CI ? 1 : undefined,
+	workers: 1,
 	reporter: 'html',
-	timeout: 30_000,
+	// wp-admin pages in wp-env are slow; the order/admin specs do several full page loads.
+	timeout: 60_000,
 	use: {
 		baseURL: WP_BASE_URL,
 		trace: 'on-first-retry',
