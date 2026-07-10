@@ -1,90 +1,48 @@
-[![WordPress tested 5.5](https://img.shields.io/badge/WordPress-v5.5%20tested-0073aa.svg)](https://wordpress.org/plugins/plugin_slug) [![PHPCS WPCS](https://img.shields.io/badge/PHPCS-WordPress%20Coding%20Standards-8892BF.svg)](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards) [![PHPUnit ](.github/coverage.svg)](https://brianhenryie.github.io/plugin_slug/)
+[![PHPCS WPCS](https://img.shields.io/badge/PHPCS-WordPress%20Coding%20Standards-8892BF.svg)](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards)
 
-# BH WC Order Email Reconcile
+# BH WP Order Email Reconcile
 
+Mark orders as paid by reconciling payment-confirmation emails against unpaid orders.
 
-Add a cron job
+Emails are fetched and stored by [BH WP Mailboxes](https://github.com/BrianHenryIE/bh-wp-mailboxes/).
+When new emails arrive, this library parses them and matches them to unpaid orders by order id
+(from the payment note), customer payment id (e.g. Venmo/$CashTag), email address, then name.
 
-Get IMAP settings
+The core is **integration-agnostic**: it deals only with `Unpaid_Order` objects supplied by an
+`Unpaid_Orders_Provider_Interface`. WooCommerce is supported today; GiveWP is scaffolded as a
+second integration. See [`ARCHITECTURE.md`](ARCHITECTURE.md) and [`PLAN.md`](PLAN.md).
 
-Have a template
+## Usagew
 
-Filter orders by gateway class. 
-
-
-## Contributing
-
-Clone this repo, open PhpStorm, then run `composer install` to install the dependencies.
-
-```
-git clone https://github.com/brianhenryie/plugin_slug.git;
-open -a PhpStorm ./;
-composer install;
-```
-
-For integration and acceptance tests, a local webserver must be running with `localhost:8080/plugin_slug/` pointing at the root of the repo. MySQL must also be running locally – with two databases set up with:
-
-```
-mysql_username="root"
-mysql_password="secret"
-
-# export PATH=${PATH}:/usr/local/mysql/bin
-
-# Make .env available to bash.
-export $(grep -v '^#' .env.testing | xargs)
-
-# Create the databases.
-mysql -u $mysql_username -p$mysql_password -e "CREATE USER '"$TEST_DB_USER"'@'%' IDENTIFIED WITH mysql_native_password BY '"$TEST_DB_PASSWORD"';";
-mysql -u $mysql_username -p$mysql_password -e "CREATE DATABASE "$TEST_SITE_DB_NAME"; USE "$TEST_SITE_DB_NAME"; GRANT ALL PRIVILEGES ON "$TEST_SITE_DB_NAME".* TO '"$TEST_DB_USER"'@'%';";
-mysql -u $mysql_username -p$mysql_password -e "CREATE DATABASE "$TEST_DB_NAME"; USE "$TEST_DB_NAME"; GRANT ALL PRIVILEGES ON "$TEST_DB_NAME".* TO '"$TEST_DB_USER"'@'%';";
+```php
+add_action( 'plugins_loaded', function () {
+    $settings = new My_Reconcile_Settings(); // implements Email_Reconcile_Settings_Interface
+    $logger   = Logger::instance( $settings );
+    BH_WP_Order_Email_Reconcile::make( $settings, $logger );
+} );
 ```
 
-### WordPress Coding Standards
+Email accounts (server, credentials, filters) are configured through the BH WP Mailboxes API; this
+library never stores credentials.
 
-See documentation on [WordPress.org](https://make.wordpress.org/core/handbook/best-practices/coding-standards/) and [GitHub.com](https://github.com/WordPress/WordPress-Coding-Standards).
+## Development
 
-Correct errors where possible and list the remaining with:
+```bash
+composer install
+composer dump-autoload          # after adding/renaming classes
 
-```
-vendor/bin/phpcbf; vendor/bin/phpcs
-```
+# Lint + static analysis
+composer lint                   # phpcbf + phpcs + phpstan
 
-### Tests
+# Unit + wpunit tests (needs the wp-env DB on port 33066)
+npm install
+npm run wp-env:start
+vendor/bin/codecept run unit
+vendor/bin/codecept run wpunit
 
-Tests use the [Codeception](https://codeception.com/) add-on [WP-Browser](https://github.com/lucatume/wp-browser) and include vanilla PHPUnit tests with [WP_Mock](https://github.com/10up/wp_mock). 
-
-Run tests with:
-
-```
-vendor/bin/codecept run unit;
-vendor/bin/codecept run wpunit;
-vendor/bin/codecept run integration;
-vendor/bin/codecept run acceptance;
-```
-
-Output and merge code coverage with:
-
-```
-vendor/bin/codecept run unit --coverage unit.cov;
-vendor/bin/codecept run wpunit --coverage wpunit.cov;
-vendor/bin/phpcov merge --clover tests/_output/clover.xml --html tests/_output/html tests/_output --text;
+# End-to-end (Playwright, against wp-env on :8888)
+npm run test:e2e
 ```
 
-To save changes made to the acceptance database:
-
-```
-export $(grep -v '^#' .env.testing | xargs)
-mysqldump -u $TEST_SITE_DB_USER -p$TEST_SITE_DB_PASSWORD $TEST_SITE_DB_NAME > tests/_data/dump.sql
-```
-
-To clear Codeception cache after moving/removing test files:
-
-```
-vendor/bin/codecept clean
-```
-
-### More Information
-
-See [github.com/BrianHenryIE/WordPress-Plugin-Boilerplate](https://github.com/BrianHenryIE/WordPress-Plugin-Boilerplate) for initial setup rationale. 
-
-# Acknowledgements
+The development plugin provides a fake WooCommerce gateway, places a fake order, configures the
+library with test mailbox credentials, and sends a fake payment email to verify reconciliation.

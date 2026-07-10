@@ -1,6 +1,6 @@
 <?php
 
-namespace BrianHenryIE\WC_Order_Email_Reconcile;
+namespace BrianHenryIE\WP_Order_Email_Reconcile;
 
 class Email_Extract_Settings_Helper_Trait_Unit_Test extends \Codeception\Test\Unit {
 
@@ -17,7 +17,5 @@ class Email_Extract_Settings_Helper_Trait_Unit_Test extends \Codeception\Test\Un
 		$this->assertEmpty( $sut->get_notes_array_regex() );
 		$this->assertNull( $sut->get_transaction_id_regex() );
 		$this->assertNull( $sut->get_transaction_url_regex() );
-
 	}
-
 }

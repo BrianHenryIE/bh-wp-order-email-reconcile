@@ -1,7 +1,7 @@
 {
-    "name": "brianhenryie/bh-wc-order-email-reconcile",
+    "name": "brianhenryie/bh-wp-order-email-reconcile",
     "license": "GPL-2.0-or-later",
-    "description": "Class to check an inbox for emails confirming payment for WooCommerce.",
+    "description": "Mark orders as paid by reconciling payment-confirmation emails. WooCommerce supported; designed to be extensible to other order sources (e.g. GiveWP).",
     "type": "wordpress-library",
     "authors": [
         {
@@ -12,91 +12,97 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
-        "process-timeout": 0,
-        "sort-packages": true,
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-            "phpstan/extension-installer": true,
             "composer/installers": true,
-            "cweagans/composer-patches": true
-        }
+            "cweagans/composer-patches": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "johnpbloch/wordpress-core-installer": true,
+            "phpstan/extension-installer": true
+        },
+        "platform": {
+            "php": "8.4"
+        },
+        "process-timeout": 0,
+        "sort-packages": true
     },
     "autoload": {
         "classmap": [
-            "src/"
+            "includes/"
         ]
     },
     "autoload-dev": {
+        "psr-4": {
+            "BrianHenryIE\\WP_Order_Email_Reconcile\\": [
+                "tests/unit",
+                "tests/wpunit"
+            ]
+        },
         "classmap": [
-            "test-plugin/"
+            "development-plugin/",
+            "tests/unit",
+            "tests/wpunit",
+            "tests/_support"
         ]
     },
-    "repositories": [
-        {
-            "url": "https://github.com/WordPress/wordpress-develop",
-            "type": "git"
+    "repositories": {
+        "wordpress/wordpress": {
+            "type": "git",
+            "url": "https://github.com/WordPress/wordpress-develop.git",
+            "only": [
+                "wordpress/wordpress"
+            ]
         },
-        {
-            "type":"composer",
-            "url":"https://wpackagist.org"
+        "outlandish/wpackagist": {
+            "type": "composer",
+            "url": "https://wpackagist.org",
+            "only": [
+                "wpackagist-plugin/*",
+                "wpackagist-theme/*"
+            ]
         },
-        {
+        "brianhenryie/bh-wp-mailboxes": {
             "type": "path",
-            "url": "../bh-wp-mailboxes"
+            "url": "../bh-wp-mailboxes",
+            "only": [
+                "brianhenryie/bh-wp-mailboxes"
+            ]
         }
-    ],
+    },
     "require": {
-        "php": ">=8.0",
+        "php": ">=8.4",
+        "ext-json": "*",
         "brianhenryie/bh-wp-mailboxes": "dev-master",
-        "ddeboer/imap": "^1.11",
-        "psr/container": "*",
         "psr/log": "*"
     },
     "require-dev": {
-        "vlucas/phpdotenv": "*",
+        "ext-dom": "*",
         "10up/wp_mock": "*",
-        "antecedent/patchwork": "*",
-        "brianhenryie/bh-wp-logger": "*",
+        "antecedent/patchwork": "^2.1",
+        "brianhenryie/bh-wp-logger": ">0.3.3",
         "brianhenryie/color-logger": "*",
-        "brianhenryie/composer-phpstorm": "*",
         "dealerdirect/phpcodesniffer-composer-installer": "*",
+        "johnpbloch/wordpress": "*",
         "lucatume/wp-browser": "*",
+        "mockery/mockery": "*",
+        "php-stubs/woocommerce-stubs": "*",
+        "phpcompatibility/phpcompatibility-wp": "*",
         "phpstan/extension-installer": "*",
+        "phpstan/phpstan-mockery": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/phpcov": "*",
+        "rector/rector": "^2.4",
         "squizlabs/php_codesniffer": "*",
         "szepeviktor/phpstan-wordpress": "*",
+        "vlucas/phpdotenv": "*",
         "wordpress/wordpress": "*",
-        "wp-cli/wp-cli-bundle": "*",
-        "wp-cli/dist-archive-command": "*",
         "wp-coding-standards/wpcs": "*",
-        "php-stubs/woocommerce-stubs": "*",
+        "wpackagist-plugin/give": "^4.15",
         "wpackagist-plugin/woocommerce": "*",
+        "wpackagist-plugin/wp-crontrol": "^1.21",
         "wpackagist-theme/storefront": "*"
     },
-    "extra": {
-        "google/apiclient-services": [
-            "Gmail"
-        ],
-        "phpstorm": {
-            "exclude_folders": {
-                "folders": [
-                    "vendor/php-stubs/woocommerce-stubs",
-                    "vendor/wordpress/wordpress/src",
-                    "vendor/wordpress/wordpress/build",
-                    "wp-content/plugins/bh-wp-order-email-reconcile-test-plugin",
-                    "wordpress/wp-content",
-                    "test-plugin/vendor"
-                ],
-                "include_folders": [
-                    "vendor/wordpress/wordpress/"
-                ],
-                "composer-symlinks": false
-            }
-        }
-    },
     "scripts": {
-        "pre-autoload-dump": "Google\\Task\\Composer::cleanup",
-        "coverage-tests": [
+        "test-coverage": [
             "vendor/bin/codecept run unit --coverage unit.cov",
             "vendor/bin/codecept run wpunit --coverage wpunit.cov",
             "vendor/bin/phpcov merge --clover tests/_output/clover.xml --html tests/_output/html tests/_output;",
@@ -109,6 +115,13 @@
         ],
         "lint-changes": [
             "updated_files=$( git status | grep 'modified:\\s.*.php$' | cut -c14- | awk '{ printf(\"%s \", $0) }' ); vendor/bin/phpcbf $(echo $updated_files); vendor/bin/phpcs $(echo $updated_files); vendor/bin/phpstan analyse $(echo $updated_files) --memory-limit 1G"
+        ],
+        "php-compatibility": [
+            "vendor/bin/phpcs -p includes --standard=PHPCompatibilityWP --runtime-set testVersion 8.4-"
+        ],
+        "post-autoload-dump": [
+            "php ./bin/sync-composer-wpenv.php",
+            "php ./bin/modify-autoload-patchwork.php"
         ]
     }
 }
