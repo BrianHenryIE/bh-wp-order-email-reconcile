@@ -59,13 +59,6 @@
                 "wpackagist-plugin/*",
                 "wpackagist-theme/*"
             ]
-        },
-        "brianhenryie/bh-wp-mailboxes": {
-            "type": "path",
-            "url": "../bh-wp-mailboxes",
-            "only": [
-                "brianhenryie/bh-wp-mailboxes"
-            ]
         }
     },
     "require": {
