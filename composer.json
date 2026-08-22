@@ -71,7 +71,7 @@
         "ext-dom": "*",
         "10up/wp_mock": "*",
         "antecedent/patchwork": "^2.1",
-        "brianhenryie/bh-wp-logger": ">0.3.3",
+        "brianhenryie/bh-wp-logger": ">0.3.4",
         "brianhenryie/color-logger": "*",
         "dealerdirect/phpcodesniffer-composer-installer": "*",
         "johnpbloch/wordpress": "*",
