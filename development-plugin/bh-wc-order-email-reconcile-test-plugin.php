@@ -71,7 +71,7 @@ function instantiate_bh_wp_order_email_reconcile_test_plugin() {
 
 	$logger = Logger::instance( $settings );
 
-	$order_email_reconcile = BH_WP_Order_Email_Reconcile::instance( $settings, $logger );
+	$order_email_reconcile = BH_WP_Order_Email_Reconcile::make( $settings, $logger );
 
 	// Test-only login shortcut for Playwright.
 	new Authentication();

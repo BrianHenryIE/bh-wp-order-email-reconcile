@@ -66,7 +66,7 @@ No core code changes are required to support a new order source.
 
 ## Instantiation
 
-A consumer plugin calls `BH_WP_Order_Email_Reconcile::make( $settings, $logger )` (alias `::instance()`)
+A consumer plugin calls `BH_WP_Order_Email_Reconcile::make( $settings, $logger )`
 on `plugins_loaded`. `make()`:
 
 1. boots `bh-wp-mailboxes` (`BH_WP_Mailboxes::make`), which registers the email CPTs and cron;

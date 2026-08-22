@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests the BH_WP_Order_Email_Reconcile::make()/instance() wiring.
+ * Tests the BH_WP_Order_Email_Reconcile::make() wiring.
  *
  * @package brianhenryie/bh-wp-order-email-reconcile
  */
@@ -38,16 +38,15 @@ class BH_WP_Order_Email_Reconcile_WPUnit_Test extends \Codeception\TestCase\WPTe
 	}
 
 	/**
-	 * make()/instance() boots the library and hooks the reconcile action.
+	 * Booting the library via make() hooks the reconcile action.
 	 *
 	 * @covers ::make
-	 * @covers ::instance
 	 */
 	public function test_make_registers_reconcile_hook(): void {
 
 		$settings = $this->make_settings();
 
-		$sut = BH_WP_Order_Email_Reconcile::instance( $settings );
+		$sut = BH_WP_Order_Email_Reconcile::make( $settings );
 
 		$this->assertInstanceOf( BH_WP_Order_Email_Reconcile::class, $sut );
 

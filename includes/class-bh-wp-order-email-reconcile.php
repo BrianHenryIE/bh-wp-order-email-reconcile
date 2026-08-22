@@ -88,17 +88,4 @@ class BH_WP_Order_Email_Reconcile extends API {
 	public function get_mailboxes_api(): ?\BrianHenryIE\WP_Mailboxes\API\API {
 		return $this->mailboxes_api;
 	}
-
-	/**
-	 * Alias for make(), kept for callers that expect an `instance()` factory.
-	 *
-	 * @param Email_Reconcile_Settings_Interface $settings Plugin settings.
-	 * @param ?LoggerInterface                   $logger   PSR-3 logger.
-	 */
-	public static function instance(
-		Email_Reconcile_Settings_Interface $settings,
-		?LoggerInterface $logger = null
-	): BH_WP_Order_Email_Reconcile {
-		return self::make( $settings, $logger );
-	}
 }
