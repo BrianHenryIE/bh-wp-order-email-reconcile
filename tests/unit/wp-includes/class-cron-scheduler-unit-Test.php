@@ -63,7 +63,7 @@ class Cron_Scheduler_Unit_Test extends \Codeception\Test\Unit {
 		WP_Mock::userFunction( 'get_option' )->andReturn( 'yes' );
 		WP_Mock::userFunction( 'wp_next_scheduled' )->with( self::HOOK )->andReturn( false );
 		WP_Mock::onFilter( 'bh_wp_order_email_reconcile_fetch_emails_cron_recurrence' )
-			->with( 'hourly' )->reply( 'hourly' );
+			->with( 'hourly', 'test-plugin' )->reply( 'hourly' );
 		WP_Mock::userFunction( 'wp_schedule_event' )
 			->once()->with( Mockery::type( 'int' ), 'hourly', self::HOOK );
 		WP_Mock::userFunction( 'wp_unschedule_hook' )->never();
@@ -87,7 +87,7 @@ class Cron_Scheduler_Unit_Test extends \Codeception\Test\Unit {
 	}
 
 	/**
-	 * refresh_unpaid_orders_state() caches the flag and applies the schedule.
+	 * Calling refresh_unpaid_orders_state() caches the flag and applies the schedule.
 	 *
 	 * @covers ::refresh_unpaid_orders_state
 	 */
@@ -99,14 +99,14 @@ class Cron_Scheduler_Unit_Test extends \Codeception\Test\Unit {
 		WP_Mock::userFunction( 'get_option' )->andReturn( 'yes' );
 		WP_Mock::userFunction( 'wp_next_scheduled' )->with( self::HOOK )->andReturn( false );
 		WP_Mock::onFilter( 'bh_wp_order_email_reconcile_fetch_emails_cron_recurrence' )
-			->with( 'hourly' )->reply( 'hourly' );
+			->with( 'hourly', 'test-plugin' )->reply( 'hourly' );
 		WP_Mock::userFunction( 'wp_schedule_event' )->once()->with( Mockery::type( 'int' ), 'hourly', self::HOOK );
 
 		$this->make_sut( array( Mockery::mock( Unpaid_Order::class ) ) )->refresh_unpaid_orders_state();
 	}
 
 	/**
-	 * refresh_unpaid_orders_state() with no orders caches "no".
+	 * Calling refresh_unpaid_orders_state() with no orders caches "no".
 	 *
 	 * @covers ::refresh_unpaid_orders_state
 	 */
@@ -124,7 +124,7 @@ class Cron_Scheduler_Unit_Test extends \Codeception\Test\Unit {
 	}
 
 	/**
-	 * is_scheduled() reports the next run time.
+	 * The is_scheduled() method reports the next run time.
 	 *
 	 * @covers ::is_scheduled
 	 */

@@ -39,8 +39,11 @@ class Aggregate_Unpaid_Orders_Provider_Unit_Test extends \Codeception\Test\Unit 
 	}
 
 	protected function make_sut(): Aggregate_Unpaid_Orders_Provider {
+		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
+		$settings->shouldReceive( 'get_plugin_slug' )->andReturn( 'test-plugin' );
+
 		return new Aggregate_Unpaid_Orders_Provider(
-			Mockery::mock( Email_Reconcile_Settings_Interface::class ),
+			$settings,
 			new NullLogger()
 		);
 	}

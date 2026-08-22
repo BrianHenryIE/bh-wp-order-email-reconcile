@@ -59,9 +59,10 @@ class Aggregate_Unpaid_Orders_Provider implements Unpaid_Orders_Provider_Interfa
 		 * Filter the list of unpaid-orders providers, e.g. to add a custom integration.
 		 *
 		 * @param Unpaid_Orders_Provider_Interface[] $providers
+		 * @param string                             $plugin_slug
 		 * @param Email_Reconcile_Settings_Interface $settings
 		 */
-		return apply_filters( 'bh_wp_order_email_reconcile_unpaid_orders_providers', $providers, $this->settings );
+		return apply_filters( 'bh_wp_order_email_reconcile_unpaid_orders_providers', $providers, $this->settings->get_plugin_slug(), $this->settings );
 	}
 
 	/**

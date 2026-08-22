@@ -106,8 +106,9 @@ class Cron_Scheduler {
 			 * Filter the recurrence used when scheduling the fetch-emails cron.
 			 *
 			 * @param string $recurrence A wp_get_schedules() key, e.g. 'hourly'.
+			 * @param string $plugin_slug
 			 */
-			$recurrence = apply_filters( 'bh_wp_order_email_reconcile_fetch_emails_cron_recurrence', 'hourly' );
+			$recurrence = apply_filters( 'bh_wp_order_email_reconcile_fetch_emails_cron_recurrence', 'hourly', $this->settings->get_plugin_slug() );
 			wp_schedule_event( time(), $recurrence, $hook );
 			$this->logger->info( "Scheduled fetch-emails cron ({$hook}); unpaid orders await reconciliation." );
 			return;

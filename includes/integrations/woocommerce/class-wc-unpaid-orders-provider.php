@@ -108,7 +108,8 @@ class WC_Unpaid_Orders_Provider implements Unpaid_Orders_Provider_Interface {
 		 * Filter the order statuses considered "unpaid" when searching for orders to reconcile.
 		 *
 		 * @param string[] $unpaid_order_statuses Statuses without the `wc-` prefix.
+		 * @param string   $plugin_slug
 		 */
-		return apply_filters( 'bh_wp_order_email_reconcile_unpaid_order_statuses', $unpaid_order_statuses );
+		return apply_filters( 'bh_wp_order_email_reconcile_unpaid_order_statuses', $unpaid_order_statuses, $this->settings->get_plugin_slug() );
 	}
 }

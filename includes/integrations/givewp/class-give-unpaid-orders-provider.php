@@ -99,7 +99,8 @@ class Give_Unpaid_Orders_Provider implements Unpaid_Orders_Provider_Interface {
 		 * Filter the GiveWP donation statuses considered "unpaid".
 		 *
 		 * @param string[] $unpaid_donation_statuses GiveWP donation status keys.
+		 * @param string   $plugin_slug
 		 */
-		return apply_filters( 'bh_wp_order_email_reconcile_give_unpaid_donation_statuses', $unpaid_donation_statuses );
+		return apply_filters( 'bh_wp_order_email_reconcile_give_unpaid_donation_statuses', $unpaid_donation_statuses, $this->settings->get_plugin_slug() );
 	}
 }
