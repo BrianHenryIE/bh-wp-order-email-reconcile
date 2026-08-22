@@ -2,7 +2,7 @@
  * E2E: library instantiation.
  *
  * Drives the design of how the library is set up: the development-plugin calls
- * BH_WP_Order_Email_Reconcile::make( $settings, $logger ) on `plugins_loaded`, which boots
+ * BH_WP_Order_Email_Reconcile::make( $settings, $logger ) as its plugin file loads, which boots
  * bh-wp-mailboxes and registers the reconcile hook. This spec asserts that booted state via REST.
  *
  * Requires: `npm run wp-env:start`, WooCommerce + development-plugin active, and the dev REST

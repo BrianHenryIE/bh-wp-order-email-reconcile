@@ -66,11 +66,14 @@ No core code changes are required to support a new order source.
 
 ## Instantiation
 
-A consumer plugin calls `BH_WP_Order_Email_Reconcile::make( $settings, $logger )`
-on `plugins_loaded`. `make()`:
+A consumer plugin calls `BH_WP_Order_Email_Reconcile::make( $settings, $logger )` when its plugin
+file loads (at latest, early on `plugins_loaded` — the cron jobs are (un)scheduled from
+`plugins_loaded` callbacks at priorities 20/21, so instantiation must not be deferred past that).
+`make()`:
 
 1. boots `bh-wp-mailboxes` (`BH_WP_Mailboxes::make`), which registers the email CPTs and cron;
-2. builds the aggregate unpaid-orders provider from the available integrations;
+2. constructs the aggregate unpaid-orders provider, which resolves the available integrations at
+   query time;
 3. constructs the `Email_Reconciler` and the `API`, which hooks the global
    `bh_wp_mailboxes_new_email` action (guarded by plugin slug).
 

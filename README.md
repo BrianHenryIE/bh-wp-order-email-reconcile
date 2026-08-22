@@ -12,37 +12,22 @@ The core is **integration-agnostic**: it deals only with `Unpaid_Order` objects 
 `Unpaid_Orders_Provider_Interface`. WooCommerce is supported today; GiveWP is scaffolded as a
 second integration. See [`ARCHITECTURE.md`](ARCHITECTURE.md) and [`PLAN.md`](PLAN.md).
 
-## Usagew
+## Usage
 
 ```php
-add_action( 'plugins_loaded', function () {
-    $settings = new My_Reconcile_Settings(); // implements Email_Reconcile_Settings_Interface
-    $logger   = Logger::instance( $settings );
-    BH_WP_Order_Email_Reconcile::make( $settings, $logger );
-} );
+$settings = new My_Reconcile_Settings(); // implements Email_Reconcile_Settings_Interface
+$logger   = Logger::instance( $settings );
+BH_WP_Order_Email_Reconcile::make( $settings, $logger );
 ```
+
+Call `make()` when your plugin file loads. It only registers hooks: the integrations (WooCommerce,
+GiveWP) are checked for availability at query time, so it does not matter whether those plugins
+have loaded yet. Do not defer instantiation past `plugins_loaded` — the cron jobs are
+(un)scheduled from `plugins_loaded` callbacks, which would then never run.
 
 Email accounts (server, credentials, filters) are configured through the BH WP Mailboxes API; this
 library never stores credentials.
 
 ## Development
 
-```bash
-composer install
-composer dump-autoload          # after adding/renaming classes
-
-# Lint + static analysis
-composer lint                   # phpcbf + phpcs + phpstan
-
-# Unit + wpunit tests (needs the wp-env DB on port 33066)
-npm install
-npm run wp-env:start
-vendor/bin/codecept run unit
-vendor/bin/codecept run wpunit
-
-# End-to-end (Playwright, against wp-env on :8888)
-npm run test:e2e
-```
-
-The development plugin provides a fake WooCommerce gateway, places a fake order, configures the
-library with test mailbox credentials, and sends a fake payment email to verify reconciliation.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
