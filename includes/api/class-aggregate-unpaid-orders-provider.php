@@ -17,6 +17,9 @@ declare(strict_types=1);
 namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Model\Unpaid_Order;
+use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
+use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\GiveWP\Give_Unpaid_Orders_Provider;
+use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce\WC_Unpaid_Orders_Provider;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
@@ -29,21 +32,43 @@ class Aggregate_Unpaid_Orders_Provider implements Unpaid_Orders_Provider_Interfa
 	/**
 	 * Constructor.
 	 *
-	 * @param Unpaid_Orders_Provider_Interface[] $providers One provider per integration.
-	 * @param LoggerInterface                    $logger    PSR-3 logger.
+	 * @param Email_Reconcile_Settings_Interface $settings Plugin settings.
+	 * @param LoggerInterface                    $logger   PSR-3 logger.
 	 */
 	public function __construct(
-		protected array $providers,
+		protected Email_Reconcile_Settings_Interface $settings,
 		LoggerInterface $logger
 	) {
 		$this->setLogger( $logger );
 	}
 
 	/**
+	 * Build the provider list from every integration, filtered on each use so integrations registered
+	 * after this class is instantiated (e.g. on a later hook than the plugin bootstrap) are included.
+	 *
+	 * @return Unpaid_Orders_Provider_Interface[]
+	 */
+	protected function get_providers(): array {
+
+		$providers = array(
+			new WC_Unpaid_Orders_Provider( $this->settings, $this->logger ),
+			new Give_Unpaid_Orders_Provider( $this->settings, $this->logger ),
+		);
+
+		/**
+		 * Filter the list of unpaid-orders providers, e.g. to add a custom integration.
+		 *
+		 * @param Unpaid_Orders_Provider_Interface[] $providers
+		 * @param Email_Reconcile_Settings_Interface $settings
+		 */
+		return apply_filters( 'bh_wp_order_email_reconcile_unpaid_orders_providers', $providers, $this->settings );
+	}
+
+	/**
 	 * Available when at least one integration provider is available.
 	 */
 	public function is_available(): bool {
-		foreach ( $this->providers as $provider ) {
+		foreach ( $this->get_providers() as $provider ) {
 			if ( $provider->is_available() ) {
 				return true;
 			}
@@ -57,9 +82,10 @@ class Aggregate_Unpaid_Orders_Provider implements Unpaid_Orders_Provider_Interfa
 	 * @return Unpaid_Order[]
 	 */
 	public function get_unpaid_orders(): array {
+		$providers     = $this->get_providers();
 		$unpaid_orders = array();
 
-		foreach ( $this->providers as $provider ) {
+		foreach ( $providers as $provider ) {
 			if ( ! $provider->is_available() ) {
 				continue;
 			}
@@ -67,7 +93,7 @@ class Aggregate_Unpaid_Orders_Provider implements Unpaid_Orders_Provider_Interfa
 		}
 
 		$this->logger->debug(
-			'Aggregated ' . count( $unpaid_orders ) . ' unpaid orders from ' . count( $this->providers ) . ' provider(s).'
+			'Aggregated ' . count( $unpaid_orders ) . ' unpaid orders from ' . count( $providers ) . ' provider(s).'
 		);
 
 		return $unpaid_orders;
