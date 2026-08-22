@@ -148,7 +148,7 @@ class Order_UI {
 			'Fetch emails now: triggered from order admin.',
 			array(
 				'success'           => $result->success,
-				'saved_email_count' => count( $result->new_emails ),
+				'saved_email_count' => count( $result->get_emails() ),
 			)
 		);
 

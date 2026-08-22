@@ -46,7 +46,7 @@ class BH_WP_Order_Email_Reconcile extends API {
 		$logger ??= new NullLogger();
 
 		// bh-wp-mailboxes fetches and saves the emails and fires the
-		// `bh_wp_mailboxes_fetch_emails_saved_{plugin-slug}` action this library hooks.
+		// `bh_wp_mailboxes_new_email` action this library hooks.
 		$mailboxes_api = BH_WP_Mailboxes::make( $settings, $logger );
 
 		// Builds its provider list (WooCommerce, GiveWP, plus the

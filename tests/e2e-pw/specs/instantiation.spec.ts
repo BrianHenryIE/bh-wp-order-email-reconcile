@@ -24,7 +24,7 @@ test.describe( 'instantiation', () => {
 		const body = await response.json();
 		expect( body.library_loaded ).toBe( true );
 		expect( body.mailboxes_loaded ).toBe( true );
-		// API constructor adds the bh_wp_mailboxes_fetch_emails_saved_{slug} action.
+		// API constructor adds the bh_wp_mailboxes_new_email action.
 		expect( body.hook_registered ).toBe( true );
 	} );
 } );

@@ -90,7 +90,7 @@ function instantiate_bh_wp_order_email_reconcile_test_plugin() {
 		new Admin\Order_UI( $mailboxes_api, $settings, $logger );
 
 		// Admin dev tools page: create order + send mock payment email.
-		$admin_page = new Admin\Admin_Page( $settings, $logger );
+		$admin_page = new Admin\Admin_Page( $mailboxes_api, $settings, $logger );
 
 		// Admin menu: top-level entry (below Dashboard) + emails submenu.
 		new Admin\Admin_Menu( $settings, array( $admin_page, 'render_page' ), $logger );

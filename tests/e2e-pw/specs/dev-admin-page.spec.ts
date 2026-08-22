@@ -64,11 +64,12 @@ test.describe( 'dev admin page', () => {
 			page.getByRole( 'heading', { name: /Dev Tools/ } )
 		).toBeVisible();
 
-		// Force the clicks: WordPress 7.0 admin view transitions keep the page from being "stable",
-		// which otherwise blocks Playwright's actionability check on these buttons.
+		// Click via the element's own click(): WordPress 7.0 admin view transitions overlay the
+		// page while animating, so a coordinate-based click (even with force) can hit the
+		// transition snapshot instead of the button and silently do nothing.
 		await Promise.all( [
 			page.waitForURL( /created=\d+/ ),
-			page.locator( '#create-demo-order' ).click( { force: true } ),
+			page.locator( '#create-demo-order' ).evaluate( ( el: HTMLElement ) => el.click() ),
 		] );
 
 		const link = page.locator( '#created-order-link' );
@@ -81,7 +82,9 @@ test.describe( 'dev admin page', () => {
 
 		await Promise.all( [
 			page.waitForURL( /sent=1/ ),
-			page.locator( '#send-payment-email' ).click( { force: true } ),
+			page
+				.locator( '#send-payment-email' )
+				.evaluate( ( el: HTMLElement ) => el.click() ),
 		] );
 		await expect( page.locator( '.notice-success' ) ).toBeVisible();
 

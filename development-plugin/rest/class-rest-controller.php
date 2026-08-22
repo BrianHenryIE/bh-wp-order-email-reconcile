@@ -37,7 +37,7 @@ class REST_Controller {
 	 * @var array<string, class-string>
 	 */
 	const PROVIDER_CLASSES = array(
-		'imap' => \BrianHenryIE\WP_Mailboxes\Providers\Imap\ImapEngine_Imap_Email_Provider::class,
+		'imap' => \BrianHenryIE\WP_Mailboxes\Connections\Imap\ImapEngine_Imap_Email_Connection::class,
 	);
 
 	/**
@@ -133,9 +133,7 @@ class REST_Controller {
 			array(
 				'library_loaded'   => class_exists( BH_WP_Order_Email_Reconcile::class ),
 				'mailboxes_loaded' => class_exists( BH_WP_Mailboxes::class ),
-				'hook_registered'  => false !== has_action(
-					'bh_wp_mailboxes_fetch_emails_saved_' . $this->settings->get_plugin_slug()
-				),
+				'hook_registered'  => false !== has_action( 'bh_wp_mailboxes_new_email' ),
 			),
 			200
 		);

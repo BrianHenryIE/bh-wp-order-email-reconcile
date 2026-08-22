@@ -4,7 +4,7 @@
  *
  * - "Create order" makes an unpaid order with a unique customer_payment_id and a random total.
  * - "Send payment email" injects a mock payment email containing that id and total and fires the
- *   bh-wp-mailboxes saved-emails action so the library reconciles (and pays) the order.
+ *   bh-wp-mailboxes `bh_wp_mailboxes_new_email` action so the library reconciles (and pays) the order.
  *
  * @package brianhenryie/bh-wp-order-email-reconcile
  */
@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin;
 
+use BrianHenryIE\WP_Mailboxes\API\API as Mailboxes_API;
 use BrianHenryIE\WP_Mailboxes\API\Factories\BH_Email_Factory;
+use BrianHenryIE\WP_Mailboxes\API\Factories\New_Email_Factory;
 use BrianHenryIE\WP_Mailboxes\Connections\Imap\ImapEngine_Imap_Email_Connection;
 use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
@@ -39,10 +41,12 @@ class Admin_Page {
 	/**
 	 * Constructor. Registers the action handlers.
 	 *
-	 * @param Email_Reconcile_Settings_Interface $settings Provides slugs and the payment-id meta key.
-	 * @param LoggerInterface                    $logger   PSR-3 logger.
+	 * @param Mailboxes_API                      $mailboxes_api The booted bh-wp-mailboxes API, for wrapping mock emails.
+	 * @param Email_Reconcile_Settings_Interface $settings      Provides slugs and the payment-id meta key.
+	 * @param LoggerInterface                    $logger        PSR-3 logger.
 	 */
 	public function __construct(
+		protected Mailboxes_API $mailboxes_api,
 		protected Email_Reconcile_Settings_Interface $settings,
 		LoggerInterface $logger
 	) {
@@ -193,9 +197,18 @@ class Admin_Page {
 		// Persist the mock email to the emails CPT (so it is visible in the list) and reconcile it.
 		$saved_email = $this->save_email( $raw, $message_id );
 
+		$account   = $this->make_demo_account();
+		$new_email = new New_Email_Factory()->make(
+			api: $this->mailboxes_api,
+			account: $account,
+			email: $saved_email,
+		);
+
 		do_action(
-			'bh_wp_mailboxes_fetch_emails_saved_' . $this->settings->get_plugin_slug(),
-			array( $saved_email )
+			'bh_wp_mailboxes_new_email',
+			$this->settings->get_plugin_slug(),
+			$account,
+			$new_email
 		);
 
 		wp_safe_redirect( add_query_arg( 'sent', '1', $this->menu_url() ) );

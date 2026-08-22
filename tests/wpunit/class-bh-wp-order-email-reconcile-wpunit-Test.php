@@ -51,8 +51,8 @@ class BH_WP_Order_Email_Reconcile_WPUnit_Test extends \Codeception\TestCase\WPTe
 		$this->assertInstanceOf( BH_WP_Order_Email_Reconcile::class, $sut );
 
 		$this->assertNotFalse(
-			has_action( 'bh_wp_mailboxes_fetch_emails_saved_test-plugin' ),
-			'The reconcile action should be hooked for the plugin slug.'
+			has_action( 'bh_wp_mailboxes_new_email' ),
+			'The reconcile action should be hooked.'
 		);
 	}
 }

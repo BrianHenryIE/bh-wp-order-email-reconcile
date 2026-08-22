@@ -39,7 +39,7 @@ bh-wp-mailboxes (cron)                       this library
 ─────────────────────                        ────────────
 fetch + save emails
    │
-   └─ do_action( 'bh_wp_mailboxes_fetch_emails_saved_{slug}', BH_Email[], BH_Email_Account, Mailboxes_API )
+   └─ do_action( 'bh_wp_mailboxes_new_email', $plugin_slug, BH_Email_Account, New_Email_Interface )  (per email)
                                               │
                                   API::process_new_emails()
                                               │
@@ -59,7 +59,7 @@ fetch + save emails
 1. Create `includes/integrations/<name>/`.
 2. Implement `Unpaid_Order` (wrap the integration's order object).
 3. Implement `Unpaid_Orders_Provider_Interface` (`is_available()` + `get_unpaid_orders()`).
-4. Register the provider, either by adding it in `BH_WP_Order_Email_Reconcile::make_unpaid_orders_provider()`
+4. Register the provider, either by adding it in `Aggregate_Unpaid_Orders_Provider::get_providers()`
    or, from outside the library, via the `bh_wp_order_email_reconcile_unpaid_orders_providers` filter.
 
 No core code changes are required to support a new order source.
@@ -71,8 +71,8 @@ on `plugins_loaded`. `make()`:
 
 1. boots `bh-wp-mailboxes` (`BH_WP_Mailboxes::make`), which registers the email CPTs and cron;
 2. builds the aggregate unpaid-orders provider from the available integrations;
-3. constructs the `Email_Reconciler` and the `API`, which hooks
-   `bh_wp_mailboxes_fetch_emails_saved_{slug}`.
+3. constructs the `Email_Reconciler` and the `API`, which hooks the global
+   `bh_wp_mailboxes_new_email` action (guarded by plugin slug).
 
 `$settings` implements `Email_Reconcile_Settings_Interface`, which extends
 `BH_WP_Mailboxes_Settings_Interface`.

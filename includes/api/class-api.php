@@ -45,24 +45,34 @@ class API {
 		$this->setLogger( $logger );
 
 		add_action(
-			'bh_wp_mailboxes_fetch_emails_saved_' . $this->settings->get_plugin_slug(),
-			function ( $new_payment_emails ): void {
-				// WordPress's do_action() unwraps a single-object array (legacy array( &$this )
-				// back-compat), so when exactly one email is saved it arrives as a BH_Email rather
-				// than a BH_Email[]. Normalise back to an array.
-				$emails = is_array( $new_payment_emails ) ? $new_payment_emails : array( $new_payment_emails );
-				$this->process_new_emails( $emails );
+			'bh_wp_mailboxes_new_email',
+			/**
+			 * Reconcile each newly fetched email as bh-wp-mailboxes saves it.
+			 *
+			 * Untyped parameters: the action is global, so another plugin's (possibly
+			 * namespace-prefixed) copy of bh-wp-mailboxes may fire it with its own classes; the
+			 * plugin-slug guard filters to this instance before the objects are touched.
+			 *
+			 * @param string                                             $plugin_slug The plugin the library instance is firing from.
+			 * @param \BrianHenryIE\WP_Mailboxes\BH_Email_Account       $account     The account the email was fetched for.
+			 * @param \BrianHenryIE\WP_Mailboxes\API\New_Email_Interface $new_email   Wrapper around the saved email.
+			 */
+			function ( $plugin_slug, $account, $new_email ): void {
+				if ( $this->settings->get_plugin_slug() !== $plugin_slug ) {
+					return;
+				}
+				$this->process_new_emails( array( $new_email->get_email() ) );
 			},
 			10,
-			1
+			3
 		);
 	}
 
 	/**
 	 * Reconciles newly fetched payment emails with unpaid orders.
 	 *
-	 * @hooked bh_wp_mailboxes_fetch_emails_saved_{plugin-slug}
-	 * @see \BrianHenryIE\WP_Mailboxes\API\API::check_email()
+	 * @hooked bh_wp_mailboxes_new_email
+	 * @see \BrianHenryIE\WP_Mailboxes\API\API::check_email_for_account()
 	 *
 	 * @param BH_Email[] $new_payment_emails The emails saved during the latest fetch.
 	 *

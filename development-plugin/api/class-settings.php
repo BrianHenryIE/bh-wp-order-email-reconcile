@@ -110,6 +110,16 @@ class Settings implements Email_Reconcile_Settings_Interface, Logger_Settings_In
 	}
 
 	/**
+	 * Enable bh-wp-mailboxes' REST endpoints, including the raw-MIME email ingress endpoint at
+	 * `{namespace}/v2/{emails-cpt-dashed}/new`, used by the e2e tests to POST emails.
+	 *
+	 * @see \BrianHenryIE\WP_Mailboxes\Connections\Rest\REST_Ingress_Connection
+	 */
+	public function get_rest_namespace(): ?string {
+		return 'test-plugin';
+	}
+
+	/**
 	 * The minimum severity of logs to record.
 	 *
 	 * @return string
