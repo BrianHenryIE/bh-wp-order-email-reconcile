@@ -45,13 +45,6 @@
         ]
     },
     "repositories": {
-        "wordpress/wordpress": {
-            "type": "git",
-            "url": "https://github.com/WordPress/wordpress-develop.git",
-            "only": [
-                "wordpress/wordpress"
-            ]
-        },
         "outlandish/wpackagist": {
             "type": "composer",
             "url": "https://wpackagist.org",
@@ -87,7 +80,6 @@
         "squizlabs/php_codesniffer": "*",
         "szepeviktor/phpstan-wordpress": "*",
         "vlucas/phpdotenv": "*",
-        "wordpress/wordpress": "*",
         "wp-coding-standards/wpcs": "*",
         "wpackagist-plugin/give": "^4.15",
         "wpackagist-plugin/woocommerce": "*",
