@@ -55,7 +55,7 @@ class Credentials_Settings_Fields {
 				'data-lpignore' => 'true',
 			),
 			'id'                => 'email_username',
-			'default'           => str_replace( 'mail.example.com', '', get_option( 'mailserver_url' ) ),
+			'default'           => get_option( 'mailserver_login' ),
 		);
 
 		$form_fields['email_password'] = array(
@@ -65,7 +65,7 @@ class Credentials_Settings_Fields {
 				'autocomplete'  => 'off',
 				'data-lpignore' => 'true',
 			),
-			'id'                => 'email_password',
+			'id'                => 'email_password', // get_option( 'mailserver_pass' ),
 		);
 
 		$form_fields['after_reconcile_email_action'] = array(

@@ -6,9 +6,9 @@
  * a Cloudflare Email Routing worker POSTs each incoming email there as `message/rfc822`; these
  * tests POST directly, which is the most realistic way to inject emails end-to-end.
  *
- * Note: bh-wp-mailboxes does not (yet) fire `bh_wp_mailboxes_new_email` for REST-ingested emails —
- * the action fires only on the fetch path — so reconciliation is not asserted here, only that the
- * endpoint stores the email, is idempotent, and files it under the auto-created ingress account.
+ * This spec covers the endpoint itself: storage, idempotency, and the admin list. The full
+ * reconciliation loop (order created → email ingressed → order paid) is covered by
+ * order-reconcile-ingress.spec.ts.
  */
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
 

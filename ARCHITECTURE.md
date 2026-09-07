@@ -37,9 +37,10 @@ integrations can be active simultaneously.
 ```
 bh-wp-mailboxes (cron)                       this library
 ─────────────────────                        ────────────
-fetch + save emails
-   │
-   └─ do_action( 'bh_wp_mailboxes_new_email', $plugin_slug, BH_Email_Account, New_Email_Interface )  (per email)
+fetch + save emails ── or ── REST email ingress
+   │                            │
+   └────────────┬───────────────┘
+                └─ do_action( 'bh_wp_mailboxes_new_email', $plugin_slug, $emails_post_type, BH_Email_Account, New_Email_Interface )  (per email)
                                               │
                                   API::process_new_emails()
                                               │
@@ -75,7 +76,7 @@ file loads (at latest, early on `plugins_loaded` — the cron jobs are (un)sched
 2. constructs the aggregate unpaid-orders provider, which resolves the available integrations at
    query time;
 3. constructs the `Email_Reconciler` and the `API`, which hooks the global
-   `bh_wp_mailboxes_new_email` action (guarded by plugin slug).
+   `bh_wp_mailboxes_new_email` action (guarded by plugin slug and emails post type).
 
 `$settings` implements `Email_Reconcile_Settings_Interface`, which extends
 `BH_WP_Mailboxes_Settings_Interface`.

@@ -207,6 +207,7 @@ class Admin_Page {
 		do_action(
 			'bh_wp_mailboxes_new_email',
 			$this->settings->get_plugin_slug(),
+			$this->settings->get_emails_cpt_underscored_20(),
 			$account,
 			$new_email
 		);

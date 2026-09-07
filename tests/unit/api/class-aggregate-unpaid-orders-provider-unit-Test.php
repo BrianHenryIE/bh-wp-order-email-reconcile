@@ -7,6 +7,10 @@
  * The provider list is built and filtered on each use, so integrations registered on later hooks
  * are still picked up.
  *
+ * The merge/skip tests inject providers by overriding get_providers() (WP_Mock's onFilter cannot
+ * match arguments containing unpredictable object instances); the unfiltered default list is
+ * exercised by test_default_providers_unavailable_without_backing_plugins().
+ *
  * @package brianhenryie/bh-wp-order-email-reconcile
  * @author  BrianHenryIE <BrianHenryIE@gmail.com>
  */
@@ -30,28 +34,54 @@ class Aggregate_Unpaid_Orders_Provider_Unit_Test extends \Codeception\Test\Unit 
 
 	protected function _tearDown() {
 		WP_Mock::tearDown();
-		// WP_Mock::tearDown() does not reset the static used by onFilter()->withAnyArgs(), which
-		// would otherwise leak the stubbed filter into later tests.
-		$filters_with_any_args = new \ReflectionProperty( \WP_Mock\Filter::class, 'filtersWithAnyArgs' );
-		$filters_with_any_args->setValue( null, array() );
 		Mockery::close();
 		parent::_tearDown();
 	}
 
-	protected function make_sut(): Aggregate_Unpaid_Orders_Provider {
+	protected function make_settings(): Email_Reconcile_Settings_Interface {
 		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
 		$settings->shouldReceive( 'get_plugin_slug' )->andReturn( 'test-plugin' );
 
-		return new Aggregate_Unpaid_Orders_Provider(
-			$settings,
-			new NullLogger()
-		);
+		return $settings;
+	}
+
+	/**
+	 * An aggregate whose provider list is the given array, bypassing the default providers and the
+	 * filter (whose arguments contain unpredictable object instances WP_Mock cannot match).
+	 *
+	 * @param Unpaid_Orders_Provider_Interface[] $providers The providers to aggregate.
+	 */
+	protected function make_sut( array $providers ): Aggregate_Unpaid_Orders_Provider {
+		return new class( $providers, $this->make_settings(), new NullLogger() ) extends Aggregate_Unpaid_Orders_Provider {
+			/**
+			 * Constructor.
+			 *
+			 * @param Unpaid_Orders_Provider_Interface[] $test_providers The injected provider list.
+			 * @param Email_Reconcile_Settings_Interface $settings       Plugin settings.
+			 * @param \Psr\Log\LoggerInterface           $logger         PSR-3 logger.
+			 */
+			public function __construct(
+				protected array $test_providers,
+				Email_Reconcile_Settings_Interface $settings,
+				\Psr\Log\LoggerInterface $logger
+			) {
+				parent::__construct( $settings, $logger );
+			}
+
+			/**
+			 * The injected providers, in place of the default + filtered list.
+			 *
+			 * @return Unpaid_Orders_Provider_Interface[]
+			 */
+			protected function get_providers(): array {
+				return $this->test_providers;
+			}
+		};
 	}
 
 	/**
 	 * @covers ::get_unpaid_orders
 	 * @covers ::is_available
-	 * @covers ::get_providers
 	 */
 	public function test_unavailable_providers_are_skipped_and_available_merged(): void {
 
@@ -65,11 +95,7 @@ class Aggregate_Unpaid_Orders_Provider_Unit_Test extends \Codeception\Test\Unit 
 		$unavailable->shouldReceive( 'is_available' )->andReturn( false );
 		$unavailable->shouldNotReceive( 'get_unpaid_orders' );
 
-		WP_Mock::onFilter( 'bh_wp_order_email_reconcile_unpaid_orders_providers' )
-			->withAnyArgs()
-			->reply( array( $available, $unavailable ) );
-
-		$sut = $this->make_sut();
+		$sut = $this->make_sut( array( $available, $unavailable ) );
 
 		$this->assertTrue( $sut->is_available() );
 
@@ -80,48 +106,41 @@ class Aggregate_Unpaid_Orders_Provider_Unit_Test extends \Codeception\Test\Unit 
 
 	/**
 	 * @covers ::is_available
-	 * @covers ::get_providers
 	 */
 	public function test_not_available_when_no_provider_is_available(): void {
 
 		$unavailable = Mockery::mock( Unpaid_Orders_Provider_Interface::class );
 		$unavailable->shouldReceive( 'is_available' )->andReturn( false );
 
-		WP_Mock::onFilter( 'bh_wp_order_email_reconcile_unpaid_orders_providers' )
-			->withAnyArgs()
-			->reply( array( $unavailable ) );
-
-		$this->assertFalse( $this->make_sut()->is_available() );
+		$this->assertFalse( $this->make_sut( array( $unavailable ) )->is_available() );
 	}
 
 	/**
-	 * With the provider list filtered empty, the aggregate is unavailable and returns no orders.
+	 * With the provider list empty, the aggregate is unavailable and returns no orders.
 	 *
 	 * @covers ::is_available
 	 * @covers ::get_unpaid_orders
-	 * @covers ::get_providers
 	 */
 	public function test_empty_provider_list(): void {
 
-		WP_Mock::onFilter( 'bh_wp_order_email_reconcile_unpaid_orders_providers' )
-			->withAnyArgs()
-			->reply( array() );
-
-		$sut = $this->make_sut();
+		$sut = $this->make_sut( array() );
 
 		$this->assertFalse( $sut->is_available() );
 		$this->assertSame( array(), $sut->get_unpaid_orders() );
 	}
 
 	/**
-	 * Unfiltered, the aggregate builds the WooCommerce and GiveWP providers; with neither plugin
-	 * loaded (their function_exists() checks fail here), it reports unavailable.
+	 * Unfiltered (WP_Mock's apply_filters passes the value through), the aggregate builds the real
+	 * WooCommerce and GiveWP providers; with neither plugin loaded (their function_exists() checks
+	 * fail here), it reports unavailable.
 	 *
 	 * @covers ::get_providers
 	 * @covers ::is_available
 	 */
 	public function test_default_providers_unavailable_without_backing_plugins(): void {
 
-		$this->assertFalse( $this->make_sut()->is_available() );
+		$sut = new Aggregate_Unpaid_Orders_Provider( $this->make_settings(), new NullLogger() );
+
+		$this->assertFalse( $sut->is_available() );
 	}
 }

@@ -51,20 +51,23 @@ class API {
 			 *
 			 * Untyped parameters: the action is global, so another plugin's (possibly
 			 * namespace-prefixed) copy of bh-wp-mailboxes may fire it with its own classes; the
-			 * plugin-slug guard filters to this instance before the objects are touched.
+			 * plugin-slug and post-type guards filter to this instance before the objects are
+			 * touched.
 			 *
-			 * @param string                                             $plugin_slug The plugin the library instance is firing from.
-			 * @param \BrianHenryIE\WP_Mailboxes\BH_Email_Account       $account     The account the email was fetched for.
-			 * @param \BrianHenryIE\WP_Mailboxes\API\New_Email_Interface $new_email   Wrapper around the saved email.
+			 * @param string                                             $plugin_slug      The plugin the library instance is firing from.
+			 * @param string                                             $emails_post_type The emails post type key, identifying which mailbox instance fired the action.
+			 * @param \BrianHenryIE\WP_Mailboxes\BH_Email_Account       $account          The account the email was fetched for.
+			 * @param \BrianHenryIE\WP_Mailboxes\API\New_Email_Interface $new_email        Wrapper around the saved email.
 			 */
-			function ( $plugin_slug, $account, $new_email ): void {
-				if ( $this->settings->get_plugin_slug() !== $plugin_slug ) {
+			function ( $plugin_slug, $emails_post_type, $account, $new_email ): void {
+				if ( $this->settings->get_plugin_slug() !== $plugin_slug
+					|| $this->settings->get_emails_cpt_underscored_20() !== $emails_post_type ) {
 					return;
 				}
 				$this->process_new_emails( array( $new_email->get_email() ) );
 			},
 			10,
-			3
+			4
 		);
 	}
 
@@ -76,7 +79,7 @@ class API {
 	 *
 	 * @param BH_Email[] $new_payment_emails The emails saved during the latest fetch.
 	 *
-	 * @return array{success:bool, num_emails:int, num_unpaid_orders:?int, reconciled:int}
+	 * @return array{success:bool, num_emails:int, num_unpaid_orders:null|int, reconciled:int}
 	 */
 	public function process_new_emails(
 		array $new_payment_emails

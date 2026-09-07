@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cae33ffcdc089ef50dffabaf52ed586f",
+    "content-hash": "e332ea4bbf90af11d6e971fd1f47f1f8",
     "packages": [
         {
             "name": "brianhenryie/bh-wp-mailboxes",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/BrianHenryIE/bh-wp-mailboxes.git",
-                "reference": "8484f1e31673198140a3dc43657e289ad66ebd89"
+                "reference": "2a4f06521cefac19de528b57cb017b4f65eb304b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/BrianHenryIE/bh-wp-mailboxes/zipball/8484f1e31673198140a3dc43657e289ad66ebd89",
-                "reference": "8484f1e31673198140a3dc43657e289ad66ebd89",
+                "url": "https://api.github.com/repos/BrianHenryIE/bh-wp-mailboxes/zipball/2a4f06521cefac19de528b57cb017b4f65eb304b",
+                "reference": "2a4f06521cefac19de528b57cb017b4f65eb304b",
                 "shasum": ""
             },
             "require": {
@@ -84,7 +84,7 @@
                 "issues": "https://github.com/BrianHenryIE/bh-wp-mailboxes/issues",
                 "source": "https://github.com/BrianHenryIE/bh-wp-mailboxes/tree/master"
             },
-            "time": "2026-08-25T22:07:35+00:00"
+            "time": "2026-08-27T01:12:33+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -3391,16 +3391,16 @@
         },
         {
             "name": "brianhenryie/bh-wp-logger",
-            "version": "dev-master",
+            "version": "0.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/BrianHenryIE/bh-wp-logger.git",
-                "reference": "91f39226f4ffca64f05d6aa0fc69118e6f8efd9d"
+                "reference": "9cc96dc64ca3b5c436f7574e3bd00e917d133791"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/BrianHenryIE/bh-wp-logger/zipball/91f39226f4ffca64f05d6aa0fc69118e6f8efd9d",
-                "reference": "91f39226f4ffca64f05d6aa0fc69118e6f8efd9d",
+                "url": "https://api.github.com/repos/BrianHenryIE/bh-wp-logger/zipball/9cc96dc64ca3b5c436f7574e3bd00e917d133791",
+                "reference": "9cc96dc64ca3b5c436f7574e3bd00e917d133791",
                 "shasum": ""
             },
             "require": {
@@ -3434,7 +3434,6 @@
                 "wpackagist-plugin/woocommerce": "*",
                 "wpackagist-theme/twentytwenty": "*"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -3455,22 +3454,22 @@
             "description": "A PSR logger for WordPress plugins, with a nice WP_List_Table UI.",
             "support": {
                 "issues": "https://github.com/BrianHenryIE/bh-wp-logger/issues",
-                "source": "https://github.com/BrianHenryIE/bh-wp-logger/tree/master"
+                "source": "https://github.com/BrianHenryIE/bh-wp-logger/tree/0.3.4"
             },
-            "time": "2026-07-17T21:48:30+00:00"
+            "time": "2026-07-17T20:41:31+00:00"
         },
         {
             "name": "brianhenryie/bh-wp-private-uploads",
-            "version": "0.4.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/BrianHenryIE/bh-wp-private-uploads.git",
-                "reference": "eb02977d6162f3468222b62c5678da84d6a4cb16"
+                "reference": "91eb6d88f4d2afd9b438f0908e68fa47a2fcf35d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/BrianHenryIE/bh-wp-private-uploads/zipball/eb02977d6162f3468222b62c5678da84d6a4cb16",
-                "reference": "eb02977d6162f3468222b62c5678da84d6a4cb16",
+                "url": "https://api.github.com/repos/BrianHenryIE/bh-wp-private-uploads/zipball/91eb6d88f4d2afd9b438f0908e68fa47a2fcf35d",
+                "reference": "91eb6d88f4d2afd9b438f0908e68fa47a2fcf35d",
                 "shasum": ""
             },
             "require": {
@@ -3481,7 +3480,7 @@
             },
             "require-dev": {
                 "10up/wp_mock": "^1.0",
-                "alleyinteractive/wordpress-autoloader": "^1.1",
+                "alleyinteractive/wordpress-autoloader": "^1.2",
                 "antecedent/patchwork": "^2.1",
                 "behat/behat": "^3.29",
                 "brianhenryie/color-logger": "*",
@@ -3507,6 +3506,7 @@
                 "wpackagist-plugin/wp-rest-api-log": "*",
                 "wpackagist-theme/twentytwenty": "*"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "files": [
@@ -3534,9 +3534,9 @@
             "description": "WordPress library for serving private/protected file uploads.",
             "support": {
                 "issues": "https://github.com/BrianHenryIE/bh-wp-private-uploads/issues",
-                "source": "https://github.com/BrianHenryIE/bh-wp-private-uploads/tree/0.4.0"
+                "source": "https://github.com/BrianHenryIE/bh-wp-private-uploads/tree/master"
             },
-            "time": "2026-07-13T01:33:59+00:00"
+            "time": "2026-08-26T19:16:56+00:00"
         },
         {
             "name": "brianhenryie/color-logger",
@@ -5164,16 +5164,16 @@
         },
         {
             "name": "lucatume/wp-browser",
-            "version": "4.7.1",
+            "version": "4.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lucatume/wp-browser.git",
-                "reference": "833fa4ea913d5d6c536511d44d85b201fa30a91f"
+                "reference": "ec746e4ef15b27f0404e54998afd8db86bfe2df6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/833fa4ea913d5d6c536511d44d85b201fa30a91f",
-                "reference": "833fa4ea913d5d6c536511d44d85b201fa30a91f",
+                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/ec746e4ef15b27f0404e54998afd8db86bfe2df6",
+                "reference": "ec746e4ef15b27f0404e54998afd8db86bfe2df6",
                 "shasum": ""
             },
             "require": {
@@ -5255,7 +5255,7 @@
             ],
             "support": {
                 "issues": "https://github.com/lucatume/wp-browser/issues",
-                "source": "https://github.com/lucatume/wp-browser/tree/4.7.1"
+                "source": "https://github.com/lucatume/wp-browser/tree/4.7.2"
             },
             "funding": [
                 {
@@ -5263,7 +5263,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-06-30T10:20:21+00:00"
+            "time": "2026-08-26T08:36:08+00:00"
         },
         {
             "name": "masterminds/html5",
@@ -9501,10 +9501,21 @@
             "homepage": "https://wordpress.org/themes/storefront/"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "brianhenryie/bh-wp-private-uploads",
+            "version": "9999999-dev",
+            "alias": "0.4.0",
+            "alias_normalized": "0.4.0.0"
+        }
+    ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "brianhenryie/bh-wp-mailboxes": 20
+        "brianhenryie/bh-wc-logger": 20,
+        "brianhenryie/bh-wp-cli-logger": 20,
+        "brianhenryie/bh-wp-logger": 20,
+        "brianhenryie/bh-wp-mailboxes": 20,
+        "brianhenryie/bh-wp-private-uploads": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

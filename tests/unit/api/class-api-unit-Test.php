@@ -41,6 +41,7 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 
 		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
 		$settings->shouldReceive( 'get_plugin_slug' )->andReturn( 'test-plugin' );
+		$settings->shouldReceive( 'get_emails_cpt_underscored_20' )->andReturn( 'test_payment_emails' );
 
 		$provider = Mockery::mock( Unpaid_Orders_Provider_Interface::class );
 		$provider->shouldNotReceive( 'get_unpaid_orders' );
@@ -64,6 +65,7 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 
 		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
 		$settings->shouldReceive( 'get_plugin_slug' )->andReturn( 'test-plugin' );
+		$settings->shouldReceive( 'get_emails_cpt_underscored_20' )->andReturn( 'test_payment_emails' );
 
 		$provider = Mockery::mock( Unpaid_Orders_Provider_Interface::class );
 		$provider->shouldReceive( 'get_unpaid_orders' )->once()->andReturn( array() );

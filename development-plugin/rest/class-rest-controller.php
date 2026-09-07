@@ -156,8 +156,12 @@ class REST_Controller {
 	 */
 	public function create_order( WP_REST_Request $request ): WP_REST_Response {
 
-		$payment_method = (string) ( $request->get_param( 'payment_method' ) ?? 'my-payment-gateway-id' );
-		$total          = (string) ( $request->get_param( 'total' ) ?? '0' );
+		$payment_method      = (string) ( $request->get_param( 'payment_method' ) ?? 'my-payment-gateway-id' );
+		$total               = (string) ( $request->get_param( 'total' ) ?? '0' );
+		$customer_payment_id = $request->get_param( 'customer_payment_id' );
+		$billing_email       = $request->get_param( 'billing_email' );
+		$billing_first_name  = $request->get_param( 'billing_first_name' );
+		$billing_last_name   = $request->get_param( 'billing_last_name' );
 
 		$order = wc_create_order();
 
@@ -171,6 +175,22 @@ class REST_Controller {
 		$order->add_item( $fee );
 
 		$order->set_payment_method( $payment_method );
+
+		if ( is_string( $billing_email ) && '' !== $billing_email ) {
+			$order->set_billing_email( $billing_email );
+		}
+		if ( is_string( $billing_first_name ) && '' !== $billing_first_name ) {
+			$order->set_billing_first_name( $billing_first_name );
+		}
+		if ( is_string( $billing_last_name ) && '' !== $billing_last_name ) {
+			$order->set_billing_last_name( $billing_last_name );
+		}
+
+		$customer_payment_id_meta_key = $this->settings->get_customer_payment_id_meta_key();
+		if ( is_string( $customer_payment_id ) && '' !== $customer_payment_id && ! empty( $customer_payment_id_meta_key ) ) {
+			$order->update_meta_data( $customer_payment_id_meta_key, $customer_payment_id );
+		}
+
 		$order->calculate_totals();
 		$order->set_status( 'on-hold' );
 		$order->save();
@@ -179,6 +199,7 @@ class REST_Controller {
 			array(
 				'id'     => $order->get_id(),
 				'status' => $order->get_status(),
+				'total'  => $order->get_total(),
 			),
 			201
 		);
@@ -249,7 +270,7 @@ class REST_Controller {
 		}
 
 		try {
-			$account = $this->mailboxes_api->add_email_account(
+			$account = $this->mailboxes_api->configure_email_account(
 				$email_address,
 				$display_name,
 				$provider_class,
