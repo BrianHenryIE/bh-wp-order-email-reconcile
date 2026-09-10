@@ -10,20 +10,18 @@ declare(strict_types=1);
 namespace BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce;
 
 /**
- * Adds username/password/server fields to a WooCommerce Settings API screen.
+ * Adds the mailbox configuration fields to a WooCommerce Settings API screen (e.g. a payment gateway).
  */
 class Credentials_Settings_Fields {
 
 	/**
-	 * WooCommerce Settings API fields for username, password, server...
+	 * WooCommerce Settings API fields: the "Add account" button (bh-wp-mailboxes' add/edit account
+	 * modal) with a link to the accounts table, and the after-reconcile action.
 	 *
-	 * Password auto-fill is disabled because saved passwords were being overwritten and inadvertently saved.
+	 * The email accounts and their IMAP credentials are managed in the modal rather than as settings
+	 * fields, so the password never passes through the settings form.
 	 *
-	 * TODO: autocomplete="off"
-	 * $value['custom_attributes'] as $attribute => $attribute_value
-	 * $value['custom_attributes'] as 'autocomplete' => 'off'
-	 * 'custom_attributes' => array( 'autocomplete' => 'off' )
-	 *
+	 * @see Mailbox_Settings_Field Renders the button and modal.
 	 * @see \WC_Admin_Settings::output_fields()
 	 *
 	 * @param array<string, mixed> $form_fields Existing settings fields to append to.
@@ -31,41 +29,10 @@ class Credentials_Settings_Fields {
 	 */
 	public function append_imap_reconcile_fields( array $form_fields ) {
 
-		$form_fields['email_server'] = array(
-			'title'             => __( 'Email server', 'bh-wp-order-email-reconcile' ),
-			'type'              => 'text',
-			'description'       => __( 'IMAP server or IP address.', 'bh-wp-order-email-reconcile' ),
-			'desc_tip'          => true,
-			'custom_attributes' => array(
-				'autocomplete'   => 'off',
-				'data-lpignore'  => 'true',
-				'data-form-type' => 'text',
-			),
-			'id'                => 'email_server',
-			'default'           => str_replace( 'mail.example.com', '', get_option( 'mailserver_url' ) ),
-		);
-
-		$form_fields['email_username'] = array(
-			'title'             => __( 'Email username', 'bh-wp-order-email-reconcile' ),
-			'type'              => 'text',
-			'description'       => __( 'Login username for email address payment receipts are mailed to.', 'bh-wp-order-email-reconcile' ),
-			'desc_tip'          => true,
-			'custom_attributes' => array(
-				'autocomplete'  => 'off',
-				'data-lpignore' => 'true',
-			),
-			'id'                => 'email_username',
-			'default'           => get_option( 'mailserver_login' ),
-		);
-
-		$form_fields['email_password'] = array(
-			'title'             => __( 'Email account password', 'bh-wp-order-email-reconcile' ),
-			'type'              => 'password',
-			'custom_attributes' => array(
-				'autocomplete'  => 'off',
-				'data-lpignore' => 'true',
-			),
-			'id'                => 'email_password', // get_option( 'mailserver_pass' ),
+		$form_fields['mailbox_accounts'] = array(
+			'title'       => __( 'Payment mailbox', 'bh-wp-order-email-reconcile' ),
+			'type'        => Mailbox_Settings_Field::FIELD_TYPE,
+			'description' => __( 'The email accounts payment receipts are sent to. Add an IMAP account here; enable, disable, edit, check or delete accounts from the emails list.', 'bh-wp-order-email-reconcile' ),
 		);
 
 		$form_fields['after_reconcile_email_action'] = array(
@@ -81,8 +48,6 @@ class Credentials_Settings_Fields {
 				'delete'    => __( 'Delete email', 'bh-wp-order-email-reconcile' ),
 			),
 		);
-
-		// TODO: Add a link to view the email CPT.
 
 		return $form_fields;
 	}

@@ -7,6 +7,7 @@
 
 namespace BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\WooCommerce;
 
+use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce\Credentials_Settings_Fields;
 use WC_Payment_Gateway;
 
 /**
@@ -36,7 +37,7 @@ class My_Payment_Gateway extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * Enable/disable + title fields.
+	 * Enable/disable field, plus the library's mailbox configuration fields.
 	 *
 	 * @return void
 	 */
@@ -49,5 +50,8 @@ class My_Payment_Gateway extends WC_Payment_Gateway {
 				'default' => 'yes',
 			),
 		);
+
+		// "Configure mailbox" button (opens the email accounts modal) and the after-reconcile action.
+		$this->form_fields = ( new Credentials_Settings_Fields() )->append_imap_reconcile_fields( $this->form_fields );
 	}
 }

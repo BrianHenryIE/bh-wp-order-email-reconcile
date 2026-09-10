@@ -12,6 +12,8 @@ namespace BrianHenryIE\WP_Order_Email_Reconcile;
 use BrianHenryIE\WP_Order_Email_Reconcile\API\API;
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Aggregate_Unpaid_Orders_Provider;
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Email_Reconciler;
+use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce\Mailbox_Settings_Field;
+use BrianHenryIE\WP_Mailboxes\Admin\Email_Account_Modal;
 use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce\WC_Order_Status_Listener;
 use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce\WC_Reconciliation_Admin;
 use BrianHenryIE\WP_Order_Email_Reconcile\WP_Includes\Cron_Scheduler;
@@ -61,9 +63,14 @@ class BH_WP_Order_Email_Reconcile extends API {
 		add_action( 'plugins_loaded', array( $cron_scheduler, 'enforce_cron_schedule' ), Cron_Scheduler::PLUGINS_LOADED_PRIORITY );
 		new WC_Order_Status_Listener( $cron_scheduler, $logger );
 
-		// Admin cross-links between reconciled orders and their payment emails.
+		// Admin cross-links between reconciled orders and their payment emails, and the "Add account"
+		// WooCommerce Settings API field type, which prints bh-wp-mailboxes' add/edit account modal on
+		// the gateway settings screen (the accounts table itself is on the emails list screen).
 		if ( is_admin() ) {
 			new WC_Reconciliation_Admin( $settings, $logger );
+
+			$mailbox_settings_field = new Mailbox_Settings_Field( new Email_Account_Modal( $settings ), $settings, $logger );
+			$mailbox_settings_field->register_hooks();
 		}
 
 		$email_reconciler = new Email_Reconciler( $settings, $logger );

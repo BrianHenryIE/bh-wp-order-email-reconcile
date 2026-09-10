@@ -48,6 +48,14 @@ test.describe( 'dev admin page', () => {
 			'a[href*="edit.php?post_type=test_payment_emails"]'
 		);
 		await expect( emailsLink ).toBeVisible();
+
+		// A shortcut to the demo gateway's WooCommerce settings screen, where the mailbox fields render.
+		const gatewayLink = devMenu.getByRole( 'link', { name: 'Gateway settings' } );
+		await expect( gatewayLink ).toBeVisible();
+		await expect( gatewayLink ).toHaveAttribute(
+			'href',
+			/admin\.php\?page=wc-settings&tab=checkout&section=my-payment-gateway-id$/
+		);
 		const emailsLinkTop = ( await emailsLink.boundingBox() )!.y;
 		expect( emailsLinkTop ).toBeGreaterThanOrEqual( 0 );
 		const submenuPosition = await devMenu

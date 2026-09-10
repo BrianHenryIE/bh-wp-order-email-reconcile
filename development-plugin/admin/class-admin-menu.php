@@ -63,7 +63,7 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Register the top-level menu (below Dashboard) and the emails-list submenu, and ensure a
+	 * Register the top-level menu (below Dashboard), the emails-list and gateway-settings submenus, and ensure a
 	 * separator sits both above and below the menu so it is visually spaced from its neighbours.
 	 *
 	 * @hooked admin_menu
@@ -89,6 +89,18 @@ class Admin_Menu {
 			self::MENU_CAPABILITY,
 			'edit.php?post_type=' . $this->settings->get_emails_cpt_underscored_20()
 		);
+
+		// The demo payment gateway's WooCommerce settings screen, where the library's mailbox fields render.
+		$gateway_ids = $this->settings->get_payment_method_ids();
+		if ( count( $gateway_ids ) > 0 ) {
+			add_submenu_page(
+				self::MENU_SLUG,
+				__( 'Payment Gateway Settings', 'bh-wp-order-email-reconcile' ),
+				__( 'Gateway settings', 'bh-wp-order-email-reconcile' ),
+				self::MENU_CAPABILITY,
+				'admin.php?page=wc-settings&tab=checkout&section=' . rawurlencode( (string) reset( $gateway_ids ) )
+			);
+		}
 
 		$this->add_separator_before_menu();
 		$this->add_separator_after_menu();

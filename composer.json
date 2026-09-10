@@ -45,16 +45,19 @@
             "tests/_support"
         ]
     },
-    "repositories": {
-        "outlandish/wpackagist": {
+    "repositories": [
+        {
+            "name": "ericmann/secrets-api",
+            "type": "git",
+            "url": "https://github.com/ericmann/secrets-api"
+        },
+        {
+            "name": "outlandish/wpackagist",
             "type": "composer",
             "url": "https://wpackagist.org",
-            "only": [
-                "wpackagist-plugin/*",
-                "wpackagist-theme/*"
-            ]
+            "only": ["wpackagist-plugin/*", "wpackagist-theme/*"]
         }
-    },
+    ],
     "require": {
         "php": ">=8.4",
         "ext-json": "*",
@@ -112,5 +115,12 @@
             "php ./bin/sync-composer-wpenv.php",
             "php ./bin/modify-autoload-patchwork.php"
         ]
+    },
+    "extra": {
+        "installer-paths": {
+            "vendor/{$vendor}/{$name}/": [
+                "wordpress/secrets-api"
+            ]
+        }
     }
 }

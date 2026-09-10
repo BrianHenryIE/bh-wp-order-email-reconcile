@@ -83,9 +83,23 @@ file loads (at latest, early on `plugins_loaded` — the cron jobs are (un)sched
 
 ## Adding email accounts
 
-Email accounts (server, credentials, filters) are owned by `bh-wp-mailboxes`, not this library.
-They are added through the mailboxes API: `Mailboxes_API::add_email_account( ... )`. This library
-never stores credentials.
+Email accounts (address, display name, connection class, filters, status) and their credentials are
+owned by `bh-wp-mailboxes`, not this library. Accounts are added through the mailboxes API
+(`configure_email_account()`, `set_email_account_active()`, `delete_email_account()`); credentials
+are saved with `save_account_credentials()`, stored encrypted through the WordPress Secrets API
+(bh-wp-mailboxes bundles the `wordpress/secrets-api` feature plugin), and read back by the library
+itself when it connects. This library never sees them.
+
+### "Add account" on the gateway settings screen
+
+`Integrations\WooCommerce\Credentials_Settings_Fields::append_imap_reconcile_fields()` adds a
+`bh_wp_oer_mailbox_accounts` field to a gateway's WooCommerce Settings API form fields.
+`Mailbox_Settings_Field` renders that field type (via `woocommerce_generate_{type}_html`) as
+bh-wp-mailboxes' "Add account" button plus a "Manage accounts" link to the emails list screen, and
+prints bh-wp-mailboxes' `Email_Account_Modal` in `admin_footer` (so the password never enters the
+settings form). Saving goes through mailboxes' own AJAX handler, which upserts the account, saves
+the credentials, and tests the connection. Enabling/disabling, editing, checking and deleting
+accounts happen in the accounts table on the emails list screen, which mailboxes renders.
 
 ## Cron start/stop
 
