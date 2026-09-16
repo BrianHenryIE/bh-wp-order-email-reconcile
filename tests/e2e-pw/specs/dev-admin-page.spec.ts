@@ -77,6 +77,13 @@ test.describe( 'dev admin page', () => {
 		const wcBox = ( await wcGatewayLink.boundingBox() )!;
 		const giveBox = ( await giveGatewayItem.boundingBox() )!;
 		expect( giveBox.y ).toBeGreaterThan( wcBox.y );
+
+		// The logger's logs page, last in the submenu.
+		const logsLink = devMenu.getByRole( 'link', { name: 'Logs' } );
+		await expect( logsLink ).toBeVisible();
+		await expect( logsLink ).toHaveAttribute( 'href', /admin\.php\?page=test-plugin-logs$/ );
+		const submenuLinks = devMenu.locator( '.wp-submenu a' );
+		await expect( submenuLinks.last() ).toHaveText( 'Logs' );
 		const emailsLinkTop = ( await emailsLink.boundingBox() )!.y;
 		expect( emailsLinkTop ).toBeGreaterThanOrEqual( 0 );
 		const submenuPosition = await devMenu

@@ -71,7 +71,7 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Register the top-level menu (below Dashboard), the emails-list, unreconciled-orders and gateway submenus, and ensure a
+	 * Register the top-level menu (below Dashboard), the emails-list, unreconciled-orders, gateway and logs submenus, and ensure a
 	 * separator sits both above and below the menu so it is visually spaced from its neighbours.
 	 *
 	 * @hooked admin_menu
@@ -119,6 +119,15 @@ class Admin_Menu {
 			__( 'GiveWP Gateway', 'bh-wp-order-email-reconcile' ),
 			function_exists( 'give' ),
 			'edit.php?post_type=give_forms&page=give-settings&tab=gateways&section=' . $gateway_id
+		);
+
+		// The logger's logs page (bh-wp-logger registers it at `{plugin_slug}-logs`), last.
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( 'Logs', 'bh-wp-order-email-reconcile' ),
+			__( 'Logs', 'bh-wp-order-email-reconcile' ),
+			self::MENU_CAPABILITY,
+			'admin.php?page=' . rawurlencode( $this->settings->get_plugin_slug() . '-logs' )
 		);
 
 		$this->add_separator_before_menu();
