@@ -18,22 +18,16 @@ interface Email_Extract_Settings_Interface {
 	 * Regex to extract the amount paid from the email body.
 	 *
 	 * Used to match to the correct order.
-	 *
-	 * @return string
 	 */
 	public function get_amount_regex(): string;
 
 	/**
 	 * Regex to get the customer's email address, for matching.
-	 *
-	 * @return string
 	 */
 	public function get_customer_email_regex(): ?string;
 
 	/**
 	 * Regex to find Venmo handle/ CashTag, etc.
-	 *
-	 * @return ?string
 	 */
 	public function get_customer_id_regex(): ?string;
 
@@ -44,7 +38,9 @@ interface Email_Extract_Settings_Interface {
 	public function get_order_id_regex(): ?string;
 
 	/**
-	 * Regex to get the customer's actual name, for notes.
+	 * Regex to get the customer's actual name.
+	 *
+	 * E.g. Venmo no longer includes the customer id, and this is always good for notes.
 	 */
 	public function get_customer_name_regex(): ?string;
 
@@ -59,8 +55,6 @@ interface Email_Extract_Settings_Interface {
 
 	/**
 	 * Regex to extract the transaction id according to the payment processor.
-	 *
-	 * @return ?string
 	 */
 	public function get_transaction_id_regex(): ?string;
 
@@ -68,8 +62,6 @@ interface Email_Extract_Settings_Interface {
 	 * Regex to extract URL to payment processor website for this transaction.
 	 *
 	 * Will be used on the wp-admin order screen and in the order note.
-	 *
-	 * @return ?string
 	 */
 	public function get_transaction_url_regex(): ?string;
 }
