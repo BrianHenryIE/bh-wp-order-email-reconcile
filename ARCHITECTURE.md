@@ -42,13 +42,13 @@ fetch + save emails ── or ── REST email ingress
    └────────────┬───────────────┘
                 └─ do_action( 'bh_wp_mailboxes_new_email', $plugin_slug, $emails_post_type, BH_Email_Account, New_Email_Interface )  (per email)
                                               │
-                                  API::process_new_emails()
+                                  API::process_new_email()
                                               │
                           Unpaid_Orders_Provider_Interface::get_unpaid_orders()  ── Unpaid_Order[]
                                               │
-                                   Email_Parser::parse_emails()  ── Parsed_Email[]
+                                   Email_Parser::parse_email()   ── Parsed_Email
                                               │
-                                   Email_Reconciler::index_orders() + reconcile_emails()
+                                   Email_Reconciler::index_orders() + reconcile_email()
                                               │
                   match by: order id (note) → customer payment id → email → name
                                               │

@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
+use BrianHenryIE\WP_Mailboxes\API\New_Email_Interface;
+use BrianHenryIE\WP_Mailboxes\BH_Email_Account;
 use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
 use Psr\Log\LoggerAwareTrait;
@@ -44,31 +46,30 @@ class API {
 	) {
 		$this->setLogger( $logger );
 
-		add_action(
-			'bh_wp_mailboxes_new_email',
-			/**
-			 * Reconcile each newly fetched email as bh-wp-mailboxes saves it.
-			 *
-			 * Untyped parameters: the action is global, so another plugin's (possibly
-			 * namespace-prefixed) copy of bh-wp-mailboxes may fire it with its own classes; the
-			 * plugin-slug and post-type guards filter to this instance before the objects are
-			 * touched.
-			 *
-			 * @param string                                             $plugin_slug      The plugin the library instance is firing from.
-			 * @param string                                             $emails_post_type The emails post type key, identifying which mailbox instance fired the action.
-			 * @param \BrianHenryIE\WP_Mailboxes\BH_Email_Account       $account          The account the email was fetched for.
-			 * @param \BrianHenryIE\WP_Mailboxes\API\New_Email_Interface $new_email        Wrapper around the saved email.
-			 */
-			function ( $plugin_slug, $emails_post_type, $account, $new_email ): void {
-				if ( $this->settings->get_plugin_slug() !== $plugin_slug
-					|| $this->settings->get_emails_cpt_underscored_20() !== $emails_post_type ) {
-					return;
-				}
-				$this->process_new_emails( array( $new_email->get_email() ) );
-			},
-			10,
-			4
-		);
+		add_action( 'bh_wp_mailboxes_new_email', array( $this, 'on_new_email' ), 10, 4 );
+	}
+
+	/**
+	 * Reconcile each newly fetched email as bh-wp-mailboxes saves it.
+	 *
+	 * Untyped parameters: the action is global, so another plugin's (possibly namespace-prefixed)
+	 * copy of bh-wp-mailboxes may fire it with its own classes; the plugin-slug and post-type guards
+	 * filter to this instance before the objects are touched.
+	 *
+	 * @see \BrianHenryIE\WP_Mailboxes\API\API::alert_new_email()
+	 * @hooked bh_wp_mailboxes_new_email
+	 *
+	 * @param string              $plugin_slug      The plugin the library instance is firing from.
+	 * @param string              $emails_post_type The emails post type key, identifying which mailbox instance fired the action.
+	 * @param BH_Email_Account    $account          The account the email was fetched for.
+	 * @param New_Email_Interface $new_email        Wrapper around the saved email.
+	 */
+	public function on_new_email( string $plugin_slug, string $emails_post_type, BH_Email_Account $account, New_Email_Interface $new_email ): void {
+		if ( $this->settings->get_plugin_slug() !== $plugin_slug
+			|| $this->settings->get_emails_cpt_underscored_20() !== $emails_post_type ) {
+			return;
+		}
+		$this->process_new_email( $new_email->get_email() );
 	}
 
 	/**
@@ -79,55 +80,41 @@ class API {
 	}
 
 	/**
-	 * Reconciles newly fetched payment emails with unpaid orders.
+	 * Reconcile one newly fetched payment email with the unpaid orders.
 	 *
-	 * @hooked bh_wp_mailboxes_new_email
 	 * @see \BrianHenryIE\WP_Mailboxes\API\API::check_email_for_account()
 	 *
-	 * @param BH_Email[] $new_payment_emails The emails saved during the latest fetch.
+	 * @param BH_Email $email The newly saved email.
 	 *
-	 * @return array{success:bool, num_emails:int, num_unpaid_orders:null|int, reconciled:int}
+	 * @return array{num_unpaid_orders:int, reconciled:bool, order_id:?int}
 	 */
-	public function process_new_emails(
-		array $new_payment_emails
-	): array {
-
-		if ( 0 === count( $new_payment_emails ) ) {
-			return array(
-				'success'           => true,
-				'num_emails'        => 0,
-				'num_unpaid_orders' => null,
-				'reconciled'        => 0,
-			);
-		}
+	public function process_new_email( BH_Email $email ): array {
 
 		$unpaid_orders = $this->unpaid_orders_provider->get_unpaid_orders();
 
 		// Nothing to do if there are no unpaid orders.
 		if ( 0 === count( $unpaid_orders ) ) {
-			$this->logger->info( 'No unpaid orders found. Ending. ' . count( $new_payment_emails ) . ' emails found for ' . $this->settings->get_plugin_slug() . '.' );
+			$this->logger->info( 'No unpaid orders found for ' . $this->settings->get_plugin_slug() . '; nothing to reconcile the email with.' );
 			return array(
-				'success'           => true,
-				'num_emails'        => count( $new_payment_emails ),
 				'num_unpaid_orders' => 0,
-				'reconciled'        => 0,
+				'reconciled'        => false,
+				'order_id'          => null,
 			);
 		}
 
 		$this->logger->info( count( $unpaid_orders ) . ' unpaid orders for ' . $this->settings->get_plugin_slug() . '.' );
 
-		$email_parser  = new Email_Parser( $this->settings->get_patterns(), $this->logger );
-		$parsed_emails = $email_parser->parse_emails( $new_payment_emails );
+		$email_parser = new Email_Parser( $this->settings->get_patterns(), $this->logger );
+		$parsed_email = $email_parser->parse_email( $email );
 
 		$this->email_reconciler->index_orders( $unpaid_orders );
-		$reconcile_emails_result = $this->email_reconciler->reconcile_emails( $parsed_emails );
+		$result = $this->email_reconciler->reconcile_email( $parsed_email );
 
-		// TODO: create Process_New_Emails_Result class.
+		// TODO: create Process_New_Email_Result class.
 		return array(
-			'success'           => true,
-			'num_emails'        => count( $new_payment_emails ),
 			'num_unpaid_orders' => count( $unpaid_orders ),
-			'reconciled'        => count( $reconcile_emails_result['reconciled_emails'] ),
+			'reconciled'        => $result['reconciled'],
+			'order_id'          => $result['order_id'],
 		);
 	}
 }
