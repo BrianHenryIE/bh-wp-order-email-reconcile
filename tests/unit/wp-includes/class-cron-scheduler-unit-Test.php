@@ -22,7 +22,8 @@ class Cron_Scheduler_Unit_Test extends \Codeception\Test\Unit {
 
 	const HOOK = 'test_payment_emails_fetch_emails_job';
 
-	protected function _before() {
+	protected function setUp(): void {
+		parent::setUp();
 		WP_Mock::setUp();
 		WP_Mock::userFunction( 'sanitize_key' )->andReturnUsing(
 			function ( $key ) {
@@ -31,10 +32,10 @@ class Cron_Scheduler_Unit_Test extends \Codeception\Test\Unit {
 		);
 	}
 
-	protected function _tearDown() {
+	protected function tearDown(): void {
 		WP_Mock::tearDown();
 		Mockery::close();
-		parent::_tearDown();
+		parent::tearDown();
 	}
 
 	/**

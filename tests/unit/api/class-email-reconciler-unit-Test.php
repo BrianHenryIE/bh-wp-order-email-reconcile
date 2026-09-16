@@ -26,7 +26,8 @@ use WP_Mock;
  */
 class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 
-	protected function _before() {
+	protected function setUp(): void {
+		parent::setUp();
 		WP_Mock::setUp();
 		WP_Mock::userFunction( 'esc_html' )->andReturnUsing(
 			function ( $text ) {
@@ -36,10 +37,10 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 		WP_Mock::userFunction( 'update_post_meta' )->andReturn( true );
 	}
 
-	protected function _tearDown() {
+	protected function tearDown(): void {
 		WP_Mock::tearDown();
 		Mockery::close();
-		parent::_tearDown();
+		parent::tearDown();
 	}
 
 	/**
@@ -62,7 +63,7 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 		$order->shouldReceive( 'is_paid' )->andReturn( false );
 		$order->shouldReceive( 'get_amount' )->andReturn( '99.99' );
 		$order->shouldReceive( 'get_integration' )->andReturn( 'woocommerce' );
-		// The reconciliation side effects we expect on a match:
+		// The reconciliation side effects we expect on a match.
 		$order->shouldReceive( 'mark_paid' )->once()->with( 'transaction_id_axby' );
 		$order->shouldReceive( 'add_note' )->once();
 		$order->shouldReceive( 'add_meta' );
@@ -123,7 +124,7 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 	}
 
 	/**
-	 * reconcile_emails() returns the reconciled emails keyed by order id.
+	 * Method `::reconcile_emails()` returns the reconciled emails keyed by order id.
 	 *
 	 * @covers ::reconcile_emails
 	 */

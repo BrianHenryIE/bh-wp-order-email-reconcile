@@ -20,9 +20,9 @@ use ZBateson\MailMimeParser\IMessage;
  */
 class Email_Parser_Unit_Test extends \Codeception\Test\Unit {
 
-	protected function _tearDown() {
+	protected function tearDown(): void {
 		Mockery::close();
-		parent::_tearDown();
+		parent::tearDown();
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Email_Parser_Unit_Test extends \Codeception\Test\Unit {
 	}
 
 	/**
-	 * parse_emails() returns one Parsed_Email per input email.
+	 * Method `::parse_emails()` returns one Parsed_Email per input email.
 	 *
 	 * @covers ::parse_emails
 	 */

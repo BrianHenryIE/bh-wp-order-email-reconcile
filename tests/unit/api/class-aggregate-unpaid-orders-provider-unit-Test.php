@@ -28,14 +28,14 @@ use WP_Mock;
  */
 class Aggregate_Unpaid_Orders_Provider_Unit_Test extends \Codeception\Test\Unit {
 
-	protected function _before() {
+	protected function setUp(): void {
 		WP_Mock::setUp();
 	}
 
-	protected function _tearDown() {
+	protected function tearDown(): void {
 		WP_Mock::tearDown();
 		Mockery::close();
-		parent::_tearDown();
+		parent::tearDown();
 	}
 
 	protected function make_settings(): Email_Reconcile_Settings_Interface {

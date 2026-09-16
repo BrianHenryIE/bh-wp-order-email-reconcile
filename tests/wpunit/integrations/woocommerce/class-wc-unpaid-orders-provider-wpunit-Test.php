@@ -103,7 +103,7 @@ class WC_Unpaid_Orders_Provider_WPUnit_Test extends \Codeception\TestCase\WPTest
 	}
 
 	/**
-	 * get_customer_payment_id() reads the configured meta key, lowercased, and is null when absent.
+	 * Method `::get_customer_payment_id()` reads the configured meta key, lowercased, and is null when absent.
 	 *
 	 * @covers \BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce\WC_Unpaid_Order::get_customer_payment_id
 	 */

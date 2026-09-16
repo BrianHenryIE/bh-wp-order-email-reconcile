@@ -21,15 +21,15 @@ use WP_Mock;
  */
 class API_Unit_Test extends \Codeception\Test\Unit {
 
-	protected function _before() {
+	protected function setUp(): void {
 		WP_Mock::setUp();
 		WP_Mock::userFunction( 'add_action' );
 	}
 
-	protected function _tearDown() {
+	protected function tearDown(): void {
 		WP_Mock::tearDown();
 		Mockery::close();
-		parent::_tearDown();
+		parent::tearDown();
 	}
 
 	/**
