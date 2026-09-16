@@ -156,6 +156,13 @@ class WC_Unpaid_Order implements Unpaid_Order {
 	}
 
 	/**
+	 * `shop_order` (the order's type is also the post type it is stored as).
+	 */
+	public function get_post_type(): string {
+		return $this->order->get_type();
+	}
+
+	/**
 	 * When the order was placed.
 	 */
 	public function get_date_created(): ?DateTimeInterface {

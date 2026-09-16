@@ -57,6 +57,7 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 
 		$order = Mockery::mock( Unpaid_Order::class );
 		$order->shouldReceive( 'get_order_id' )->andReturn( 123 );
+		$order->shouldReceive( 'get_post_type' )->andReturn( 'shop_order' );
 		$order->shouldReceive( 'get_customer_payment_id' )->andReturn( 'my_cashtag' );
 		$order->shouldReceive( 'get_email_address' )->andReturn( 'customer@example.org' );
 		$order->shouldReceive( 'get_customer_names' )->andReturn( array( 'firstname lastname' ) );
@@ -100,6 +101,7 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 
 		$order = Mockery::mock( Unpaid_Order::class );
 		$order->shouldReceive( 'get_order_id' )->andReturn( 123 );
+		$order->shouldReceive( 'get_post_type' )->andReturn( 'shop_order' );
 		$order->shouldReceive( 'get_customer_payment_id' )->andReturn( 'my_cashtag' );
 		$order->shouldReceive( 'get_email_address' )->andReturn( 'customer@example.org' );
 		$order->shouldReceive( 'get_customer_names' )->andReturn( array() );
@@ -135,6 +137,7 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 
 		$order = Mockery::mock( Unpaid_Order::class );
 		$order->shouldReceive( 'get_order_id' )->andReturn( 123 );
+		$order->shouldReceive( 'get_post_type' )->andReturn( 'shop_order' );
 		$order->shouldReceive( 'get_customer_payment_id' )->andReturn( 'my_cashtag' );
 		$order->shouldReceive( 'get_email_address' )->andReturn( 'customer@example.org' );
 		$order->shouldReceive( 'get_customer_names' )->andReturn( array() );

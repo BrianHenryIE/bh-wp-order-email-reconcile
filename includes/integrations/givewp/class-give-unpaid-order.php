@@ -157,6 +157,13 @@ class Give_Unpaid_Order implements Unpaid_Order {
 	}
 
 	/**
+	 * GiveWP stores donations as `give_payment` posts.
+	 */
+	public function get_post_type(): string {
+		return 'give_payment';
+	}
+
+	/**
 	 * When the donation was made.
 	 */
 	public function get_date_created(): ?DateTimeInterface {

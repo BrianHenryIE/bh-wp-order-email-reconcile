@@ -39,6 +39,14 @@ interface Unpaid_Order {
 	public function get_order_id(): int;
 
 	/**
+	 * The WordPress post type the order is stored as, e.g. `shop_order`, `give_payment`.
+	 *
+	 * Log messages reference the order as `` `{post_type}:{id}` ``, which bh-wp-logger turns into a
+	 * link to the order.
+	 */
+	public function get_post_type(): string;
+
+	/**
 	 * The amount outstanding on the order, as a numeric string for exact comparison with the
 	 * amount parsed from the payment email.
 	 *

@@ -48,6 +48,7 @@ class Unreconciled_Orders_Page_WPUnit_Test extends \Codeception\TestCase\WPTestC
 		$order = Mockery::mock( Unpaid_Order::class );
 		$order->allows( 'get_order_id' )->andReturn( $id );
 		$order->allows( 'get_integration' )->andReturn( 'woocommerce' );
+		$order->allows( 'get_post_type' )->andReturn( 'shop_order' );
 		$order->allows( 'get_edit_url' )->andReturn( "https://example.org/wp-admin/admin.php?page=wc-orders&action=edit&id={$id}" );
 		$order->allows( 'get_date_created' )->andReturn( new DateTimeImmutable( '2026-09-01 10:00:00' ) );
 		$order->allows( 'get_customer_display_name' )->andReturn( "Customer {$id}" );
