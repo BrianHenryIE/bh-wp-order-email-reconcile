@@ -41,6 +41,16 @@ add/edit IMAP account modal (credentials are saved by that library and the conne
 plus a "Manage accounts" link to the emails list screen. That screen's accounts table is where accounts are enabled/disabled, edited,
 checked now, or deleted, and where recent login failures are flagged.
 
+### Unreconciled orders page
+
+The library provides an admin page listing the orders and donations still waiting for a payment
+email, as a `WP_List_Table`. Register it under your plugin's menu:
+
+```php
+$page = new Unreconciled_Orders_Page( $reconcile->get_unpaid_orders_provider(), $settings, $logger );
+add_action( 'admin_menu', fn() => $page->register_submenu( 'my-plugin-menu', 'manage_woocommerce' ) );
+```
+
 ## Development
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md).

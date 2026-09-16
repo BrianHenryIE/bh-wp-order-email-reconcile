@@ -72,6 +72,13 @@ class API {
 	}
 
 	/**
+	 * The unpaid orders provider the reconciler matches emails against (e.g. for the unreconciled orders page).
+	 */
+	public function get_unpaid_orders_provider(): Unpaid_Orders_Provider_Interface {
+		return $this->unpaid_orders_provider;
+	}
+
+	/**
 	 * Reconciles newly fetched payment emails with unpaid orders.
 	 *
 	 * @hooked bh_wp_mailboxes_new_email

@@ -101,6 +101,17 @@ settings form). Saving goes through mailboxes' own AJAX handler, which upserts t
 the credentials, and tests the connection. Enabling/disabling, editing, checking and deleting
 accounts happen in the accounts table on the emails list screen, which mailboxes renders.
 
+## Unreconciled orders page
+
+`Admin\Unreconciled_Orders_Page` renders the orders the reconciler is waiting to match, using the
+same `Unpaid_Orders_Provider_Interface` the reconciler uses (exposed by
+`API::get_unpaid_orders_provider()`, i.e. the aggregate of every integration). The consumer decides
+where the page lives by calling `register_submenu( $parent_slug, $capability )` on `admin_menu`.
+`Admin\Unreconciled_Orders_List_Table` is a `WP_List_Table` over pre-fetched `Unpaid_Order`s with
+no checkbox column or bulk actions, paginated in memory (the providers return every unpaid order).
+For display it uses the `Unpaid_Order` methods `get_date_created()`, `get_customer_display_name()`
+and `get_edit_url()`, which each integration implements alongside the matching-oriented getters.
+
 ## Cron start/stop
 
 The email-fetch cron runs **only while there is reconciliation work to do**: it is scheduled when an
