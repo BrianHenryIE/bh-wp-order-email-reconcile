@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace BrianHenryIE\WP_Order_Email_Reconcile;
 
+use BrianHenryIE\WP_Mailboxes\WP_Includes\Mailbox_Capabilities;
 use BrianHenryIE\WP_Order_Email_Reconcile\API\API;
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Aggregate_Unpaid_Orders_Provider;
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Email_Reconciler;
@@ -69,7 +70,12 @@ class BH_WP_Order_Email_Reconcile extends API {
 		if ( is_admin() ) {
 			new WC_Reconciliation_Admin( $settings, $logger );
 
-			$mailbox_settings_field = new Mailbox_Settings_Field( new Email_Account_Modal( $settings ), $settings, $logger );
+			// TODO: These don't need to be on every admin pageload.
+			$mailbox_settings_field = new Mailbox_Settings_Field(
+				new Email_Account_Modal( $settings, new Mailbox_Capabilities( $settings ) ),
+				$settings,
+				$logger
+			);
 			$mailbox_settings_field->register_hooks();
 		}
 
