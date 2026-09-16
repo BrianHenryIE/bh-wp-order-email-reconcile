@@ -25,6 +25,7 @@ async function getRestNonce( request ): Promise< string > {
 
 test.describe( 'order reconciliation via email ingress', () => {
 	test( 'an ingressed payment email marks the matching order paid', async ( {
+		page,
 		request,
 	} ) => {
 		const nonce = await getRestNonce( request );
@@ -66,6 +67,7 @@ test.describe( 'order reconciliation via email ingress', () => {
 			data: raw,
 		} );
 		expect( ingress.status() ).toBe( 201 );
+		const { post_id: emailPostId } = await ingress.json();
 
 		// Assert: the order is paid, per the WooCommerce REST API.
 		const wcOrder = await request.get( `/wp-json/wc/v3/orders/${ order.id }`, {
@@ -75,5 +77,17 @@ test.describe( 'order reconciliation via email ingress', () => {
 		const wcOrderBody = await wcOrder.json();
 		expect( wcOrderBody.status ).toBe( 'completed' );
 		expect( wcOrderBody.date_paid ).not.toBeNull();
+
+		// Assert: the email is marked "saved" and its log links to the order.
+		await page.goto( `/wp-admin/post.php?post=${ emailPostId }&action=edit` );
+		await expect(
+			page.locator( '#bh-email-local-status input[name="post_status"][value="bh_email_saved"]' )
+		).toBeChecked();
+		const log = page.locator( '#bh-email-log-notes' );
+		await expect( log ).toContainText( `Reconciled: payment matched to Woocommerce order #${ order.id }` );
+		await expect( log.getByRole( 'link', { name: `Woocommerce order #${ order.id }` } ) ).toHaveAttribute(
+			'href',
+			new RegExp( `(page=wc-orders&action=edit&id=${ order.id }|post\\.php\\?post=${ order.id }&action=edit)$` )
+		);
 	} );
 } );

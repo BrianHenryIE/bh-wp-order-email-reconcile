@@ -62,7 +62,7 @@ class Order_UI {
 			woocommerce_wp_text_input(
 				array(
 					'id'            => 'customer_payment_id',
-					'label'         => __( 'Customer payment id', 'bh-wp-order-email-reconcile' ),
+					'label'         => '<strong>' . __( 'Customer payment id', 'bh-wp-order-email-reconcile' ) . ':</strong>',
 					'description'   => __( 'e.g. Venmo username / $CashTag, used to match payment emails.', 'bh-wp-order-email-reconcile' ),
 					'desc_tip'      => true,
 					'value'         => (string) $order->get_meta( $meta_key ),

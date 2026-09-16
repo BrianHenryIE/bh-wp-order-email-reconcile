@@ -82,11 +82,6 @@ class API {
 		if ( 0 === count( $unpaid_orders ) ) {
 			$this->logger->info( 'No unpaid orders found for ' . $this->settings->get_plugin_slug() . '; nothing to reconcile the email with.' );
 			return;
-			// return array(
-			// 'num_unpaid_orders' => 0,
-			// 'reconciled'        => false,
-			// 'order_id'          => null,
-			// );
 		}
 
 		$this->logger->info(
@@ -103,15 +98,33 @@ class API {
 		$this->email_reconciler->index_orders( $unpaid_orders );
 		$result = $this->email_reconciler->reconcile_email( $parsed_email );
 
-		// $new_email->add_local_note()
-		// $new_email->update_local_status()
-		// $new_email->set_status_x($comment)
+		if ( ! $result['reconciled'] || ! isset( $result['order'] ) ) {
+			return;
+		}
 
-		// TODO: create Process_New_Email_Result class.
-		// return array(
-		// 'num_unpaid_orders' => count( $unpaid_orders ),
-		// 'reconciled'        => $result['reconciled'],
-		// 'order_id'          => $result['order_id'],
-		// );
+		// Record the match on the email: a log note linking to the order, and the "saved" status,
+		// which exempts the email from bh-wp-mailboxes' automatic deletion.
+		$order    = $result['order'];
+		$edit_url = $order->get_edit_url();
+		$label    = sprintf(
+			/* translators: 1: integration name, e.g. WooCommerce; 2: order id. */
+			__( '%1$s order #%2$d', 'bh-wp-order-email-reconcile' ),
+			ucfirst( $order->get_integration() ),
+			$order->get_order_id()
+		);
+		$new_email
+			->add_local_note(
+				sprintf(
+					/* translators: %s: the order, linked to its edit screen. */
+					__( 'Reconciled: payment matched to %s.', 'bh-wp-order-email-reconcile' ),
+					is_null( $edit_url ) ? esc_html( $label ) : '<a href="' . esc_url( $edit_url ) . '">' . esc_html( $label ) . '</a>'
+				),
+				'info',
+				array(
+					'integration' => $order->get_integration(),
+					'order_id'    => $order->get_order_id(),
+				)
+			)
+			->update_local_status( 'bh_email_saved' );
 	}
 }

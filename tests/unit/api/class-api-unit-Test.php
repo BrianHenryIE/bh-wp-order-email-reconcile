@@ -116,12 +116,19 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 
 	/**
 	 * With unpaid orders, the email is parsed and handed to the reconciler indexed with those orders.
+	 * A match is recorded on the email: a log note linking to the order, and the "saved" status.
 	 *
 	 * @covers ::on_new_email
 	 */
 	public function test_email_reconciled_against_unpaid_orders(): void {
 
+		WP_Mock::passthruFunction( 'esc_url' );
+		WP_Mock::passthruFunction( 'esc_html' );
+
 		$order = Mockery::mock( Unpaid_Order::class );
+		$order->allows( 'get_order_id' )->andReturn( 123 );
+		$order->allows( 'get_integration' )->andReturn( 'woocommerce' );
+		$order->allows( 'get_edit_url' )->andReturn( 'https://example.org/wp-admin/post.php?post=123&action=edit' );
 
 		$provider = Mockery::mock( Unpaid_Orders_Provider_Interface::class );
 		$provider->shouldReceive( 'get_unpaid_orders' )->once()->andReturn( array( $order ) );
@@ -132,12 +139,54 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 			array(
 				'reconciled' => true,
 				'order_id'   => 123,
+				'order'      => $order,
 			)
 		);
 
+		$new_email = $this->make_new_email();
+		$new_email->shouldReceive( 'add_local_note' )->once()->withArgs(
+			function ( string $message, string $level, array $context ): bool {
+				return str_contains( $message, 'href="https://example.org/wp-admin/post.php?post=123&action=edit"' )
+					&& str_contains( $message, 'Woocommerce order #123' )
+					&& 'info' === $level
+					&& 123 === $context['order_id'];
+			}
+		)->andReturnSelf();
+		$new_email->shouldReceive( 'update_local_status' )->once()->with( 'bh_email_saved' )->andReturnSelf();
+
 		$sut = new API( $this->make_settings(), $provider, $reconciler, new NullLogger() );
 
-		$sut->on_new_email( 'test-plugin', 'test_payment_emails', $this->make_account(), $this->make_new_email() );
+		$sut->on_new_email( 'test-plugin', 'test_payment_emails', $this->make_account(), $new_email );
+	}
+
+	/**
+	 * An email that matches no order is left as it is: no note, no status change.
+	 *
+	 * @covers ::on_new_email
+	 */
+	public function test_unmatched_email_is_left_alone(): void {
+
+		$order = Mockery::mock( Unpaid_Order::class );
+
+		$provider = Mockery::mock( Unpaid_Orders_Provider_Interface::class );
+		$provider->shouldReceive( 'get_unpaid_orders' )->once()->andReturn( array( $order ) );
+
+		$reconciler = Mockery::mock( Email_Reconciler::class );
+		$reconciler->shouldReceive( 'index_orders' )->once();
+		$reconciler->shouldReceive( 'reconcile_email' )->once()->andReturn(
+			array(
+				'reconciled' => false,
+				'order_id'   => null,
+			)
+		);
+
+		$new_email = $this->make_new_email();
+		$new_email->shouldNotReceive( 'add_local_note' );
+		$new_email->shouldNotReceive( 'update_local_status' );
+
+		$sut = new API( $this->make_settings(), $provider, $reconciler, new NullLogger() );
+
+		$sut->on_new_email( 'test-plugin', 'test_payment_emails', $this->make_account(), $new_email );
 	}
 
 	/**

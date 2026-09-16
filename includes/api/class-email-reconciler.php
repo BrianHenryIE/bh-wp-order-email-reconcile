@@ -139,7 +139,7 @@ class Email_Reconciler {
 	 *
 	 * @param Parsed_Email $parsed_email The values found in the email body by the regex search.
 	 *
-	 * @return array{reconciled:bool, order_id:int|null}
+	 * @return array{reconciled:bool, order_id:int|null, order?:Unpaid_Order}
 	 */
 	public function reconcile_email( Parsed_Email $parsed_email ): array {
 
@@ -199,7 +199,7 @@ class Email_Reconciler {
 	 * @param string       $matched_by Human-readable description of which index matched.
 	 * @param Unpaid_Order $order      The matched order.
 	 *
-	 * @return array{reconciled:bool, order_id:int}
+	 * @return array{reconciled:bool, order_id:int, order:Unpaid_Order}
 	 */
 	protected function matched( string $matched_by, Unpaid_Order $order ): array {
 		// `post_type:id` is linked to the order by bh-wp-logger's logs table.
