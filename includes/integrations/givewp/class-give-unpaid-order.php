@@ -16,6 +16,8 @@ declare(strict_types=1);
 namespace BrianHenryIE\WP_Order_Email_Reconcile\Integrations\GiveWP;
 
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Model\Unpaid_Order;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Give_Payment;
 
 /**
@@ -152,5 +154,34 @@ class Give_Unpaid_Order implements Unpaid_Order {
 	 */
 	public function save(): void {
 		$this->payment->save();
+	}
+
+	/**
+	 * When the donation was made.
+	 */
+	public function get_date_created(): ?DateTimeInterface {
+		$date = $this->payment->date;
+		if ( ! is_string( $date ) || '' === $date ) {
+			return null;
+		}
+		try {
+			return new DateTimeImmutable( $date, wp_timezone() );
+		} catch ( \Exception ) {
+			return null;
+		}
+	}
+
+	/**
+	 * The donor's name as entered.
+	 */
+	public function get_customer_display_name(): string {
+		return trim( $this->payment->first_name . ' ' . $this->payment->last_name );
+	}
+
+	/**
+	 * The donation's details screen in GiveWP's payment history.
+	 */
+	public function get_edit_url(): ?string {
+		return admin_url( 'edit.php?post_type=give_forms&page=give-payment-history&view=view-payment-details&id=' . $this->payment->ID );
 	}
 }

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce;
 
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Model\Unpaid_Order;
+use DateTimeInterface;
 use WC_Order;
 
 /**
@@ -152,6 +153,27 @@ class WC_Unpaid_Order implements Unpaid_Order {
 	 */
 	public function save(): void {
 		$this->order->save();
+	}
+
+	/**
+	 * When the order was placed.
+	 */
+	public function get_date_created(): ?DateTimeInterface {
+		return $this->order->get_date_created();
+	}
+
+	/**
+	 * The billing name as entered.
+	 */
+	public function get_customer_display_name(): string {
+		return trim( $this->order->get_formatted_billing_full_name() );
+	}
+
+	/**
+	 * The order's edit screen (HPOS or posts, per WooCommerce).
+	 */
+	public function get_edit_url(): ?string {
+		return $this->order->get_edit_order_url();
 	}
 
 	/**

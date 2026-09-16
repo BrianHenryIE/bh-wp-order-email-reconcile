@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace BrianHenryIE\WP_Order_Email_Reconcile\API\Model;
 
+use DateTimeInterface;
+
 /**
  * Read the data needed to match a payment email to this order, and mutate the order when a
  * matching payment email is found.
@@ -50,6 +52,22 @@ interface Unpaid_Order {
 	 * Whether the order has already been paid. A paid order is never reconciled again.
 	 */
 	public function is_paid(): bool;
+
+	/**
+	 * When the order was placed, for display; null if the integration does not record it.
+	 */
+	public function get_date_created(): ?DateTimeInterface;
+
+	/**
+	 * The customer's name as entered, for display (unlike {@see get_customer_names()}, which is
+	 * lowercased variants for matching). Empty string when unknown.
+	 */
+	public function get_customer_display_name(): string;
+
+	/**
+	 * Admin URL of the order's edit/view screen, or null if there is none.
+	 */
+	public function get_edit_url(): ?string;
 
 	/**
 	 * The customer's id on the payment platform, e.g. Venmo username or $CashTag, if it was
