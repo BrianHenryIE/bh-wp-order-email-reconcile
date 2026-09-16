@@ -62,11 +62,18 @@ test.describe( 'dev admin page', () => {
 			'href',
 			/admin\.php\?page=wc-settings&tab=checkout&section=my-payment-gateway-id$/
 		);
-		// GiveWP is not active: listed below it, but not clickable.
+		// GiveWP is listed below it. Whether it is active depends on the site: active → a link to its
+		// gateway settings; inactive → listed but not clickable.
 		const giveGatewayItem = devMenu.locator( '.wp-submenu a', { hasText: 'GiveWP gateway' } );
 		await expect( giveGatewayItem ).toBeVisible();
-		await expect( giveGatewayItem ).toHaveAttribute( 'aria-disabled', 'true' );
-		expect( await giveGatewayItem.evaluate( ( el ) => getComputedStyle( el ).pointerEvents ) ).toBe( 'none' );
+		const giveHref = ( await giveGatewayItem.getAttribute( 'href' ) ) ?? '';
+		if ( giveHref.includes( 'bh-wp-oer-dev-inactive-givewp' ) ) {
+			await expect( giveGatewayItem ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( await giveGatewayItem.evaluate( ( el ) => getComputedStyle( el ).pointerEvents ) ).toBe( 'none' );
+		} else {
+			expect( giveHref ).toMatch( /page=give-settings&tab=gateways&section=my-payment-gateway-id$/ );
+			await expect( giveGatewayItem ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		}
 		const wcBox = ( await wcGatewayLink.boundingBox() )!;
 		const giveBox = ( await giveGatewayItem.boundingBox() )!;
 		expect( giveBox.y ).toBeGreaterThan( wcBox.y );
