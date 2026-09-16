@@ -46,6 +46,11 @@ class Admin_Menu {
 	const MENU_CAPABILITY = 'read';
 
 	/**
+	 * Slug prefix of the non-clickable placeholder items shown for inactive integrations.
+	 */
+	const INACTIVE_SLUG_PREFIX = 'bh-wp-oer-dev-inactive-';
+
+	/**
 	 * Constructor. Registers the menu and its styling.
 	 *
 	 * @param Email_Reconcile_Settings_Interface $settings                 Provides the emails CPT slug for the submenu.
@@ -66,7 +71,7 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Register the top-level menu (below Dashboard), the emails-list and gateway-settings submenus, and ensure a
+	 * Register the top-level menu (below Dashboard), the emails-list, unreconciled-orders and gateway submenus, and ensure a
 	 * separator sits both above and below the menu so it is visually spaced from its neighbours.
 	 *
 	 * @hooked admin_menu
@@ -96,20 +101,57 @@ class Admin_Menu {
 		// The library's list of orders still waiting for a payment email.
 		$this->unreconciled_orders_page->register_submenu( self::MENU_SLUG, self::MENU_CAPABILITY );
 
-		// The demo payment gateway's WooCommerce settings screen, where the library's mailbox fields render.
+		// The demo payment gateway's settings screens in each integration, where the library's mailbox
+		// fields render. Listed even when the integration's plugin is inactive, but then not clickable.
 		$gateway_ids = $this->settings->get_payment_method_ids();
-		if ( count( $gateway_ids ) > 0 ) {
-			add_submenu_page(
-				self::MENU_SLUG,
-				__( 'Payment Gateway Settings', 'bh-wp-order-email-reconcile' ),
-				__( 'Gateway settings', 'bh-wp-order-email-reconcile' ),
-				self::MENU_CAPABILITY,
-				'admin.php?page=wc-settings&tab=checkout&section=' . rawurlencode( (string) reset( $gateway_ids ) )
-			);
-		}
+		$gateway_id  = count( $gateway_ids ) > 0 ? rawurlencode( (string) reset( $gateway_ids ) ) : '';
+
+		$this->add_gateway_submenu(
+			'woocommerce',
+			__( 'WooCommerce Gateway Settings', 'bh-wp-order-email-reconcile' ),
+			__( 'WooCommerce Gateway', 'bh-wp-order-email-reconcile' ),
+			function_exists( 'wc_get_orders' ),
+			'admin.php?page=wc-settings&tab=checkout&section=' . $gateway_id
+		);
+		$this->add_gateway_submenu(
+			'givewp',
+			__( 'GiveWP Gateway Settings', 'bh-wp-order-email-reconcile' ),
+			__( 'GiveWP Gateway', 'bh-wp-order-email-reconcile' ),
+			function_exists( 'give' ),
+			'edit.php?post_type=give_forms&page=give-settings&tab=gateways&section=' . $gateway_id
+		);
 
 		$this->add_separator_before_menu();
 		$this->add_separator_after_menu();
+	}
+
+	/**
+	 * A submenu link to an integration's gateway settings screen. When the integration's plugin is
+	 * inactive the item is still listed, but as a non-clickable placeholder (see print_menu_styles()),
+	 * whose page just says the plugin is inactive should it be reached directly.
+	 *
+	 * @param string $integration  Integration key, used in the placeholder slug.
+	 * @param string $page_title   The page title.
+	 * @param string $menu_title   The menu label.
+	 * @param bool   $is_active    Whether the integration's plugin is active.
+	 * @param string $settings_url The gateway settings screen, relative to wp-admin.
+	 */
+	protected function add_gateway_submenu( string $integration, string $page_title, string $menu_title, bool $is_active, string $settings_url ): void {
+		if ( $is_active ) {
+			add_submenu_page( self::MENU_SLUG, $page_title, $menu_title, self::MENU_CAPABILITY, $settings_url );
+			return;
+		}
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			$page_title,
+			$menu_title,
+			self::MENU_CAPABILITY,
+			self::INACTIVE_SLUG_PREFIX . $integration,
+			function () use ( $menu_title ): void {
+				echo '<div class="wrap"><h1>' . esc_html( $menu_title ) . '</h1><p>' . esc_html__( 'The plugin for this integration is not active.', 'bh-wp-order-email-reconcile' ) . '</p></div>';
+			}
+		);
 	}
 
 	/**
@@ -187,7 +229,21 @@ class Admin_Menu {
 				box-shadow: none;
 				min-width: auto;
 			}
+			#adminmenu #<?php echo esc_html( $menu_id ); ?> .wp-submenu a[href*="<?php echo esc_attr( self::INACTIVE_SLUG_PREFIX ); ?>"] {
+				pointer-events: none;
+				color: rgba( 240, 246, 252, 0.4 );
+			}
 		</style>
+		<script id="bh-wp-oer-dev-menu-script">
+			// Placeholder items for inactive integrations: listed, but not links. (admin_head runs before the menu.)
+			document.addEventListener( 'DOMContentLoaded', function () {
+			document.querySelectorAll( '#<?php echo esc_js( $menu_id ); ?> .wp-submenu a[href*="<?php echo esc_js( self::INACTIVE_SLUG_PREFIX ); ?>"]' ).forEach( function ( link ) {
+				link.setAttribute( 'aria-disabled', 'true' );
+				link.setAttribute( 'tabindex', '-1' );
+				link.setAttribute( 'title', '<?php echo esc_js( __( 'Plugin not active', 'bh-wp-order-email-reconcile' ) ); ?>' );
+			} );
+			} );
+		</script>
 		<?php
 	}
 }

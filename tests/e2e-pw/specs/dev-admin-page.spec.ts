@@ -54,13 +54,22 @@ test.describe( 'dev admin page', () => {
 		await expect( ordersLink ).toBeVisible();
 		await expect( ordersLink ).toHaveAttribute( 'href', /page=bh-wp-oer-unreconciled-orders$/ );
 
-		// A shortcut to the demo gateway's WooCommerce settings screen, where the mailbox fields render.
-		const gatewayLink = devMenu.getByRole( 'link', { name: 'Gateway settings' } );
-		await expect( gatewayLink ).toBeVisible();
-		await expect( gatewayLink ).toHaveAttribute(
+		// Shortcuts to the demo gateway's settings screen in each integration. WooCommerce is active:
+		// a link to its gateway settings.
+		const wcGatewayLink = devMenu.getByRole( 'link', { name: 'WooCommerce gateway' } );
+		await expect( wcGatewayLink ).toBeVisible();
+		await expect( wcGatewayLink ).toHaveAttribute(
 			'href',
 			/admin\.php\?page=wc-settings&tab=checkout&section=my-payment-gateway-id$/
 		);
+		// GiveWP is not active: listed below it, but not clickable.
+		const giveGatewayItem = devMenu.locator( '.wp-submenu a', { hasText: 'GiveWP gateway' } );
+		await expect( giveGatewayItem ).toBeVisible();
+		await expect( giveGatewayItem ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( await giveGatewayItem.evaluate( ( el ) => getComputedStyle( el ).pointerEvents ) ).toBe( 'none' );
+		const wcBox = ( await wcGatewayLink.boundingBox() )!;
+		const giveBox = ( await giveGatewayItem.boundingBox() )!;
+		expect( giveBox.y ).toBeGreaterThan( wcBox.y );
 		const emailsLinkTop = ( await emailsLink.boundingBox() )!.y;
 		expect( emailsLinkTop ).toBeGreaterThanOrEqual( 0 );
 		const submenuPosition = await devMenu
