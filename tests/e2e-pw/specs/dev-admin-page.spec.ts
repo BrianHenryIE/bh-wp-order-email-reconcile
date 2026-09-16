@@ -49,6 +49,11 @@ test.describe( 'dev admin page', () => {
 		);
 		await expect( emailsLink ).toBeVisible();
 
+		// The library's unreconciled orders page, registered under the dev menu.
+		const ordersLink = devMenu.getByRole( 'link', { name: 'Unreconciled orders' } );
+		await expect( ordersLink ).toBeVisible();
+		await expect( ordersLink ).toHaveAttribute( 'href', /page=bh-wp-oer-unreconciled-orders$/ );
+
 		// A shortcut to the demo gateway's WooCommerce settings screen, where the mailbox fields render.
 		const gatewayLink = devMenu.getByRole( 'link', { name: 'Gateway settings' } );
 		await expect( gatewayLink ).toBeVisible();

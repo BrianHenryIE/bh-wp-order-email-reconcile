@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin;
 
+use BrianHenryIE\WP_Order_Email_Reconcile\Admin\Unreconciled_Orders_Page;
 use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -47,13 +48,15 @@ class Admin_Menu {
 	/**
 	 * Constructor. Registers the menu and its styling.
 	 *
-	 * @param Email_Reconcile_Settings_Interface $settings        Provides the emails CPT slug for the submenu.
-	 * @param callable                           $render_callback Renders the dev tools page.
-	 * @param LoggerInterface                    $logger          PSR-3 logger.
+	 * @param Email_Reconcile_Settings_Interface $settings                 Provides the emails CPT slug for the submenu.
+	 * @param callable                           $render_callback          Renders the dev tools page.
+	 * @param Unreconciled_Orders_Page           $unreconciled_orders_page The library's unreconciled orders page, registered as a submenu.
+	 * @param LoggerInterface                    $logger                   PSR-3 logger.
 	 */
 	public function __construct(
 		protected Email_Reconcile_Settings_Interface $settings,
 		protected $render_callback,
+		protected Unreconciled_Orders_Page $unreconciled_orders_page,
 		LoggerInterface $logger
 	) {
 		$this->setLogger( $logger );
@@ -89,6 +92,9 @@ class Admin_Menu {
 			self::MENU_CAPABILITY,
 			'edit.php?post_type=' . $this->settings->get_emails_cpt_underscored_20()
 		);
+
+		// The library's list of orders still waiting for a payment email.
+		$this->unreconciled_orders_page->register_submenu( self::MENU_SLUG, self::MENU_CAPABILITY );
 
 		// The demo payment gateway's WooCommerce settings screen, where the library's mailbox fields render.
 		$gateway_ids = $this->settings->get_payment_method_ids();

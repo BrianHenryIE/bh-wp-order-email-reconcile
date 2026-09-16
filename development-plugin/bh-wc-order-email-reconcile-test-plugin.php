@@ -22,17 +22,21 @@
 
 namespace BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin;
 
+use BrianHenryIE\WP_Order_Email_Reconcile\Admin\Unreconciled_Orders_Page;
 use BrianHenryIE\WP_Order_Email_Reconcile\BH_WP_Order_Email_Reconcile;
 use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce\WC_Unpaid_Orders_Provider;
 use BrianHenryIE\WP_Order_Email_Reconcile\WP_Includes\Cron_Scheduler;
+use BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin\Admin_Menu;
+use BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin\Admin_Page;
+use BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin\Order_UI;
 use BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\REST\REST_Controller;
 use BrianHenryIE\WP_Logger\Logger;
 use Dotenv\Dotenv;
 use Exception;
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	throw new Exception( 'WPINC not defined' );
+if ( ! defined( 'ABSPATH' ) ) {
+	return;
 }
 
 // The Composer autoloader location differs between the repo layout (plugin nested under the repo)
@@ -87,13 +91,16 @@ function instantiate_bh_wp_order_email_reconcile_test_plugin() {
 		new REST_Controller( $mailboxes_api, $cron_scheduler, $settings, $logger );
 
 		// Admin order-edit UI: customer payment id field + "Fetch emails now" button.
-		new Admin\Order_UI( $mailboxes_api, $settings, $logger );
+		new Order_UI( $mailboxes_api, $settings, $logger );
 
 		// Admin dev tools page: create order + send mock payment email.
-		$admin_page = new Admin\Admin_Page( $mailboxes_api, $settings, $logger );
+		$admin_page = new Admin_Page( $mailboxes_api, $settings, $logger );
 
-		// Admin menu: top-level entry (below Dashboard) + emails submenu.
-		new Admin\Admin_Menu( $settings, array( $admin_page, 'render_page' ), $logger );
+		// The library's page listing orders still waiting for a payment email.
+		$unreconciled_orders_page = new Unreconciled_Orders_Page( $order_email_reconcile->get_unpaid_orders_provider(), $settings, $logger );
+
+		// Admin menu: top-level entry (below Dashboard) + emails, unreconciled orders and gateway settings submenus.
+		new Admin_Menu( $settings, array( $admin_page, 'render_page' ), $unreconciled_orders_page, $logger );
 	}
 
 	// Register the demo payment gateway whose orders this plugin reconciles.
@@ -106,17 +113,3 @@ function instantiate_bh_wp_order_email_reconcile_test_plugin() {
 	);
 }
 instantiate_bh_wp_order_email_reconcile_test_plugin();
-
-
-// Fix for symlinks in local dev.
-add_filter(
-	'plugins_url',
-	function ( $url, $path, $plugin ) {
-
-		$url = str_replace( 'Users/brianhenry/Sites', 'bh-wp-order-email-reconcile-test-plugin/vendor/brianhenryie', $url );
-
-		return $url;
-	},
-	10,
-	3
-);
