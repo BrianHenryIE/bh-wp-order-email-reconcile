@@ -233,7 +233,7 @@ class Email_Reconciler {
 			return false;
 		}
 
-		$notes = "Auto-reconciled <br/>\n";
+		$notes = "Reconciled from email<br/>\n";
 
 		$transaction_meta_and_notes = $parsed_email->get_notes();
 
@@ -262,7 +262,8 @@ class Email_Reconciler {
 		$message_id    = $bh_email->message_id;
 		$email_post_id = $bh_email->get_post_id();
 
-		$notes .= '<em>Email message id</em> ' . esc_html( $message_id ) . "<br/>\n";
+		// TODO: message_id is auto-generated for REST. There is no true UUID.
+		$notes .= esc_html( $message_id ) . "<br/>\n";
 
 		$order->mark_paid( $transaction_id );
 		$order->add_note( $notes );

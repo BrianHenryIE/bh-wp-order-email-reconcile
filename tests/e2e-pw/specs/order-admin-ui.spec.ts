@@ -31,7 +31,15 @@ test.describe( 'order admin UI', () => {
 
 		await page.goto( orderEditUrl( id ) );
 
+		// Shown as text until the billing address is put into edit mode.
+		const display = page.locator( '.bh-wp-oer-customer-payment-id' );
 		const field = page.locator( '#customer_payment_id' );
+		await expect( display ).toBeVisible();
+		await expect( display ).toContainText( 'Customer payment id' );
+		await expect( field ).toBeHidden();
+
+		await page.locator( '.order_data_column_billing a.edit_address' ).click();
+		await expect( display ).toBeHidden();
 		await expect( field ).toBeVisible();
 
 		await field.fill( 'venmo-jane' );
@@ -39,6 +47,7 @@ test.describe( 'order admin UI', () => {
 		await page.waitForLoadState( 'networkidle' );
 
 		await page.goto( orderEditUrl( id ) );
+		await expect( page.locator( '.bh-wp-oer-customer-payment-id__value' ) ).toHaveText( 'venmo-jane' );
 		await expect( page.locator( '#customer_payment_id' ) ).toHaveValue( 'venmo-jane' );
 
 		// Clean up: pay the order so it does not linger as unpaid (shared DB / cron state).

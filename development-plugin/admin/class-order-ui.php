@@ -47,7 +47,11 @@ class Order_UI {
 	}
 
 	/**
-	 * Print the editable customer payment id field and, for unpaid orders, the fetch-emails button.
+	 * Print the customer payment id (as text, or as an input while the billing address is being
+	 * edited) and, for unpaid orders, the fetch-emails button.
+	 *
+	 * WooCommerce's pencil/"Edit" toggle on the billing column hides every `div.address` and shows
+	 * every `div.edit_address` in the column, so the field is rendered in both forms and follows it.
 	 *
 	 * @hooked woocommerce_admin_order_data_after_billing_address
 	 *
@@ -59,16 +63,27 @@ class Order_UI {
 		$meta_key = $this->settings->get_customer_payment_id_meta_key();
 
 		if ( ! empty( $meta_key ) ) {
-			woocommerce_wp_text_input(
-				array(
-					'id'            => 'customer_payment_id',
-					'label'         => '<strong>' . __( 'Customer payment id', 'bh-wp-order-email-reconcile' ) . ':</strong>',
-					'description'   => __( 'e.g. Venmo username / $CashTag, used to match payment emails.', 'bh-wp-order-email-reconcile' ),
-					'desc_tip'      => true,
-					'value'         => (string) $order->get_meta( $meta_key ),
-					'wrapper_class' => 'form-field-wide',
-				)
-			);
+			$value = (string) $order->get_meta( $meta_key );
+			?>
+			<div class="address bh-wp-oer-customer-payment-id">
+				<p>
+					<strong><?php esc_html_e( 'Customer payment id', 'bh-wp-order-email-reconcile' ); ?>:</strong>
+					<span class="bh-wp-oer-customer-payment-id__value"><?php echo '' === $value ? '&mdash;' : esc_html( $value ); ?></span>
+				</p>
+			</div>
+			<div class="edit_address">
+				<?php
+				woocommerce_wp_text_input(
+					array(
+						'id'            => 'customer_payment_id',
+						'label'         => __( 'Customer payment id', 'bh-wp-order-email-reconcile' ) . ':',
+						'value'         => $value,
+						'wrapper_class' => 'form-field-wide',
+					)
+				);
+				?>
+			</div>
+			<?php
 		}
 
 		if ( ! $order->is_paid() ) {
