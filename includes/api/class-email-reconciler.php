@@ -233,7 +233,8 @@ class Email_Reconciler {
 			return false;
 		}
 
-		$notes = "Reconciled from email<br/>\n";
+		$notes = "Reconciled from email:";
+		$notes .= ' ';
 
 		$transaction_meta_and_notes = $parsed_email->get_notes();
 

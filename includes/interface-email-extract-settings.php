@@ -55,6 +55,8 @@ interface Email_Extract_Settings_Interface {
 
 	/**
 	 * Regex to extract the transaction id according to the payment processor.
+	 *
+	 * TODO: use transaction id to ensure payment is only applied to one order.
 	 */
 	public function get_transaction_id_regex(): ?string;
 
