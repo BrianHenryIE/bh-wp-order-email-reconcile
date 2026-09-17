@@ -30,6 +30,22 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 	protected function _before() {
 		WP_Mock::setUp();
 		WP_Mock::userFunction( 'add_action' );
+		WP_Mock::passthruFunction( '__' );
+		WP_Mock::passthruFunction( 'wp_slash' );
+	}
+
+	/**
+	 * Every processed email gets its extraction result saved to post meta.
+	 */
+	protected function expect_extraction_saved(): void {
+		WP_Mock::userFunction( 'update_post_meta' )
+			->once()
+			->withArgs(
+				function ( int $post_id, string $key, array $value ): bool {
+					return 123 === $post_id && Email_Parser::EMAIL_META_EXTRACTION === $key && isset( $value['matches'], $value['values'] );
+				}
+			)
+			->andReturn( true );
 	}
 
 	protected function _tearDown() {
@@ -96,11 +112,14 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 	}
 
 	/**
-	 * With no unpaid orders, the email is not reconciled.
+	 * With no unpaid orders, the email is not reconciled, but its extraction is still saved and it is
+	 * marked processed.
 	 *
 	 * @covers ::on_new_email
 	 */
 	public function test_no_unpaid_orders(): void {
+
+		$this->expect_extraction_saved();
 
 		$provider = Mockery::mock( Unpaid_Orders_Provider_Interface::class );
 		$provider->shouldReceive( 'get_unpaid_orders' )->once()->andReturn( array() );
@@ -109,9 +128,13 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 		$reconciler->shouldNotReceive( 'index_orders' );
 		$reconciler->shouldNotReceive( 'reconcile_email' );
 
+		$new_email = $this->make_new_email();
+		$new_email->shouldReceive( 'add_local_note' )->once()->with( Mockery::pattern( '/no unpaid orders/' ), 'notice', Mockery::type( 'array' ) )->andReturnSelf();
+		$new_email->shouldReceive( 'update_local_status' )->once()->with( 'bh_email_processed' )->andReturnSelf();
+
 		$sut = new API( $this->make_settings(), $provider, $reconciler, new NullLogger() );
 
-		$sut->on_new_email( 'test-plugin', 'test_payment_emails', $this->make_account(), $this->make_new_email() );
+		$sut->on_new_email( 'test-plugin', 'test_payment_emails', $this->make_account(), $new_email );
 	}
 
 	/**
@@ -124,6 +147,7 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 
 		WP_Mock::passthruFunction( 'esc_url' );
 		WP_Mock::passthruFunction( 'esc_html' );
+		$this->expect_extraction_saved();
 
 		$order = Mockery::mock( Unpaid_Order::class );
 		$order->allows( 'get_order_id' )->andReturn( 123 );
@@ -160,11 +184,13 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 	}
 
 	/**
-	 * An email that matches no order is left as it is: no note, no status change.
+	 * An email that matches no order is noted as such and marked processed.
 	 *
 	 * @covers ::on_new_email
 	 */
-	public function test_unmatched_email_is_left_alone(): void {
+	public function test_unmatched_email_is_marked_processed(): void {
+
+		$this->expect_extraction_saved();
 
 		$order = Mockery::mock( Unpaid_Order::class );
 
@@ -181,8 +207,8 @@ class API_Unit_Test extends \Codeception\Test\Unit {
 		);
 
 		$new_email = $this->make_new_email();
-		$new_email->shouldNotReceive( 'add_local_note' );
-		$new_email->shouldNotReceive( 'update_local_status' );
+		$new_email->shouldReceive( 'add_local_note' )->once()->with( Mockery::pattern( '/no unpaid order matched/' ), 'notice', Mockery::type( 'array' ) )->andReturnSelf();
+		$new_email->shouldReceive( 'update_local_status' )->once()->with( 'bh_email_processed' )->andReturnSelf();
 
 		$sut = new API( $this->make_settings(), $provider, $reconciler, new NullLogger() );
 

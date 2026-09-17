@@ -18,6 +18,7 @@ namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
 use BrianHenryIE\WP_Mailboxes\API\Controller\Email_Controller_Interface;
 use BrianHenryIE\WP_Mailboxes\BH_Email_Account;
+use BrianHenryIE\WP_Order_Email_Reconcile\API\Model\Unpaid_Order;
 use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -76,11 +77,21 @@ class API {
 			return;
 		}
 
+		$email = $new_email->get_email();
+
+		// Extract the payment values once, and keep what each pattern matched on the email for admin UIs.
+		$email_parser = new Email_Parser( $this->settings->get_patterns(), $this->logger );
+		$extraction   = $email_parser->extract( $email );
+		if ( $email->get_post_id() > 0 ) {
+			// Slashed: update_post_meta() unslashes its value, which would strip the regexes' backslashes.
+			update_post_meta( $email->get_post_id(), Email_Parser::EMAIL_META_EXTRACTION, wp_slash( $extraction->to_array() ) );
+		}
+
 		$unpaid_orders = $this->unpaid_orders_provider->get_unpaid_orders();
 
-		// Nothing to do if there are no unpaid orders.
 		if ( 0 === count( $unpaid_orders ) ) {
 			$this->logger->info( 'No unpaid orders found for ' . $this->settings->get_plugin_slug() . '; nothing to reconcile the email with.' );
+			$this->record_processed( $new_email, __( 'Processed: no unpaid orders to match against.', 'bh-wp-order-email-reconcile' ) );
 			return;
 		}
 
@@ -92,19 +103,44 @@ class API {
 			)
 		);
 
-		$email_parser = new Email_Parser( $this->settings->get_patterns(), $this->logger );
-		$parsed_email = $email_parser->parse_email( $new_email->get_email() );
+		$parsed_email = $extraction->parsed_email;
+		if ( is_null( $parsed_email ) ) {
+			return;
+		}
 
 		$this->email_reconciler->index_orders( $unpaid_orders );
 		$result = $this->email_reconciler->reconcile_email( $parsed_email );
 
 		if ( ! $result['reconciled'] || ! isset( $result['order'] ) ) {
+			$this->record_processed( $new_email, __( 'Processed: no unpaid order matched.', 'bh-wp-order-email-reconcile' ), $extraction->get_values() );
 			return;
 		}
 
-		// Record the match on the email: a log note linking to the order, and the "saved" status,
-		// which exempts the email from bh-wp-mailboxes' automatic deletion.
-		$order    = $result['order'];
+		$this->record_reconciled( $new_email, $result['order'] );
+	}
+
+	/**
+	 * The email was looked at but matched no order: note it, and mark the email "processed" (which
+	 * leaves it subject to bh-wp-mailboxes' automatic deletion).
+	 *
+	 * @param Email_Controller_Interface $new_email The email.
+	 * @param string                     $message   The note.
+	 * @param array<string, mixed>       $values    The extracted values, stored with the note.
+	 */
+	protected function record_processed( Email_Controller_Interface $new_email, string $message, array $values = array() ): void {
+		$new_email
+			->add_local_note( $message, 'notice', array( 'values' => $values ) )
+			->update_local_status( 'bh_email_processed' );
+	}
+
+	/**
+	 * The email reconciled an order: note it with a link to the order, and mark the email "saved",
+	 * which exempts it from bh-wp-mailboxes' automatic deletion.
+	 *
+	 * @param Email_Controller_Interface $new_email The email.
+	 * @param Unpaid_Order               $order     The reconciled order.
+	 */
+	protected function record_reconciled( Email_Controller_Interface $new_email, Unpaid_Order $order ): void {
 		$edit_url = $order->get_edit_url();
 		$label    = sprintf(
 			/* translators: 1: integration name, e.g. WooCommerce; 2: order id. */

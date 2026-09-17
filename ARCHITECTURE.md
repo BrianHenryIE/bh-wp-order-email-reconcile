@@ -46,9 +46,11 @@ fetch + save emails ── or ── REST email ingress
                                               │
                           Unpaid_Orders_Provider_Interface::get_unpaid_orders()  ── Unpaid_Order[]
                                               │
-                                   Email_Parser::parse_email()   ── Parsed_Email
+                                   Email_Parser::extract()  ── Extraction_Result (saved to the email's meta)
                                               │
                                    Email_Reconciler::index_orders() + reconcile_email()
+                                              │
+                                   email log note + status: bh_email_saved (matched) / bh_email_processed
                                               │
                   match by: order id (note) → customer payment id → email → name
                                               │

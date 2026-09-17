@@ -9,6 +9,7 @@
 namespace BrianHenryIE\WP_Order_Email_Reconcile\API;
 
 use BrianHenryIE\WP_Mailboxes\Models\BH_Email_Fixture;
+use BrianHenryIE\WP_Order_Email_Reconcile\API\Model\Extraction_Result;
 use BrianHenryIE\WP_Order_Email_Reconcile\Email_Extract_Settings_Interface;
 use BrianHenryIE\WP_Mailboxes\API\Model\BH_Email;
 use Mockery;
@@ -36,6 +37,7 @@ class Email_Parser_Unit_Test extends \Codeception\Test\Unit {
 		$pattern_set->shouldReceive( 'get_amount_regex' )->andReturn( '~\$(\d+\.\d{2})~' );
 		$pattern_set->shouldReceive( 'get_customer_email_regex' )->andReturn( '~Email: (\S+@\S+)~' );
 		$pattern_set->shouldReceive( 'get_customer_name_regex' )->andReturn( null );
+		$pattern_set->shouldReceive( 'get_order_id_regex' )->andReturn( null );
 		$pattern_set->shouldReceive( 'get_customer_id_regex' )->andReturn( null );
 		$pattern_set->shouldReceive( 'get_transaction_id_regex' )->andReturn( '~Txn: (\w+)~' );
 		$pattern_set->shouldReceive( 'get_transaction_url_regex' )->andReturn( null );
@@ -103,5 +105,44 @@ class Email_Parser_Unit_Test extends \Codeception\Test\Unit {
 		$this->assertCount( 2, $parsed );
 		$this->assertSame( '1.00', $parsed[0]->get_amount() );
 		$this->assertSame( '2.00', $parsed[1]->get_amount() );
+	}
+
+	/**
+	 * `::extract()` records, per pattern set and value, the regex, what it matched and in which
+	 * body; unmatched and unset patterns are recorded with a null value. The result survives a
+	 * round trip through its array form (as saved to post meta).
+	 *
+	 * @covers ::extract
+	 * @covers \BrianHenryIE\WP_Order_Email_Reconcile\API\Model\Extraction_Result
+	 */
+	public function test_extract_records_matches_per_pattern(): void {
+		$parser = new Email_Parser( array( $this->make_pattern_set() ), new NullLogger() );
+		$email  = BH_Email_Fixture::create( body_plain_text: 'Payment of $12.34. Email: a@example.org', body_html: '<p>Txn: ABC123</p>' );
+
+		$result = $parser->extract( $email );
+
+		$set = $result->matches[ array_key_first( $result->matches ) ];
+
+		$this->assertSame( '12.34', $set['amount']['value'] );
+		$this->assertSame( 'plain_text', $set['amount']['source'] );
+		$this->assertNotNull( $set['amount']['regex'] );
+		$this->assertSame( 'a@example.org', $set['customer_email']['value'] );
+		// Found only in the HTML body.
+		$this->assertSame( 'ABC123', $set['transaction_id']['value'] );
+		$this->assertSame( 'html', $set['transaction_id']['source'] );
+		// A regex that matched nothing.
+		$this->assertNotNull( $set['notes.note']['regex'] );
+		$this->assertNull( $set['notes.note']['value'] );
+		// No regex configured.
+		$this->assertNull( $set['customer_name']['regex'] );
+		$this->assertNull( $set['customer_name']['value'] );
+
+		$this->assertSame( '12.34', $result->get_values()['amount'] );
+
+		$restored = Extraction_Result::from_array( $result->to_array() );
+		$this->assertNotNull( $restored );
+		$this->assertSame( $result->matches, $restored->matches );
+		$this->assertSame( $result->get_values(), $restored->get_values() );
+		$this->assertNull( Extraction_Result::from_array( 'not saved' ) );
 	}
 }
