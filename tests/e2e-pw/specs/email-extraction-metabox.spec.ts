@@ -1,5 +1,5 @@
 /**
- * E2E: the development plugin's "Extraction patterns" metabox on the single email view.
+ * E2E: the library's "Extraction patterns" metabox on the single email view.
  *
  * Lists, per Email_Extract_Settings_Interface pattern set, each regex and the value it matched in the
  * email, read from the extraction result the library saved on the email when it was processed. The

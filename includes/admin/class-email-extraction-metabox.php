@@ -5,14 +5,15 @@
  * Reads the {@see Extraction_Result} the library saved to the email's post meta when it processed
  * the email: for every `Email_Extract_Settings_Interface`, each regex and the value it matched
  * (and in which body), or that it did not match; then the merged values the reconciler used. Helps
- * when writing patterns for a new payment provider's emails.
+ * when writing patterns for a new payment provider's emails. Registered by
+ * {@see \BrianHenryIE\WP_Order_Email_Reconcile\BH_WP_Order_Email_Reconcile::make()} in wp-admin.
  *
  * @package brianhenryie/bh-wp-order-email-reconcile
  */
 
 declare(strict_types=1);
 
-namespace BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin;
+namespace BrianHenryIE\WP_Order_Email_Reconcile\Admin;
 
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Email_Parser;
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Model\Extraction_Result;
@@ -104,26 +105,26 @@ class Email_Extraction_Metabox {
 	 * One row: the value name, its regex (or a dash when the set has none), and the match.
 	 *
 	 * @param string                                              $name  The value name, e.g. "amount".
-	 * @param array{regex:?string, value:?string, source:?string} $match What the pattern matched.
+	 * @param array{regex:?string, value:?string, source:?string} $pattern_match What the pattern matched.
 	 *
 	 * @return void
 	 */
-	protected function render_row( string $name, array $match ): void {
+	protected function render_row( string $name, array $pattern_match ): void {
 		echo '<tr data-pattern="' . esc_attr( $name ) . '">';
 		echo '<td><code>' . esc_html( $name ) . '</code></td>';
 
-		if ( is_null( $match['regex'] ) ) {
+		if ( is_null( $pattern_match['regex'] ) ) {
 			echo '<td>&mdash;</td><td class="bh-wp-oer-extraction-patterns__unset">' . esc_html__( 'Not set', 'bh-wp-order-email-reconcile' ) . '</td>';
 			echo '</tr>';
 			return;
 		}
 
-		echo '<td><code>' . esc_html( $match['regex'] ) . '</code></td>';
+		echo '<td><code>' . esc_html( $pattern_match['regex'] ) . '</code></td>';
 
-		if ( is_null( $match['value'] ) ) {
+		if ( is_null( $pattern_match['value'] ) ) {
 			echo '<td class="bh-wp-oer-extraction-patterns__no-match">' . esc_html__( 'No match', 'bh-wp-order-email-reconcile' ) . '</td>';
 		} else {
-			echo '<td class="bh-wp-oer-extraction-patterns__match"><strong>' . esc_html( $match['value'] ) . '</strong> <span class="description">(' . esc_html( str_replace( '_', ' ', (string) $match['source'] ) ) . ')</span></td>';
+			echo '<td class="bh-wp-oer-extraction-patterns__match"><strong>' . esc_html( $pattern_match['value'] ) . '</strong> <span class="description">(' . esc_html( str_replace( '_', ' ', (string) $pattern_match['source'] ) ) . ')</span></td>';
 		}
 		echo '</tr>';
 	}

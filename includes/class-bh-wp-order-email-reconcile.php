@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace BrianHenryIE\WP_Order_Email_Reconcile;
 
 use BrianHenryIE\WP_Mailboxes\WP_Includes\Mailbox_Capabilities;
+use BrianHenryIE\WP_Order_Email_Reconcile\Admin\Email_Extraction_Metabox;
 use BrianHenryIE\WP_Order_Email_Reconcile\API\API;
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Aggregate_Unpaid_Orders_Provider;
 use BrianHenryIE\WP_Order_Email_Reconcile\API\Email_Reconciler;
@@ -77,6 +78,9 @@ class BH_WP_Order_Email_Reconcile extends API {
 				$logger
 			);
 			$mailbox_settings_field->register_hooks();
+
+			// Single email view: what each extraction pattern found in the email (from its saved result).
+			new Email_Extraction_Metabox( $settings )->register_hooks();
 		}
 
 		$email_reconciler = new Email_Reconciler( $settings, $logger );

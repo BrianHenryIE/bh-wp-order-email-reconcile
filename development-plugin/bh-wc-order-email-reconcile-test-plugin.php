@@ -28,7 +28,6 @@ use BrianHenryIE\WP_Order_Email_Reconcile\Integrations\WooCommerce\WC_Unpaid_Ord
 use BrianHenryIE\WP_Order_Email_Reconcile\WP_Includes\Cron_Scheduler;
 use BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin\Admin_Menu;
 use BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin\Admin_Page;
-use BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin\Email_Extraction_Metabox;
 use BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin\Order_UI;
 use BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\REST\REST_Controller;
 use BrianHenryIE\WP_Logger\Logger;
@@ -93,9 +92,6 @@ function instantiate_bh_wp_order_email_reconcile_test_plugin() {
 
 		// Admin order-edit UI: customer payment id field + "Fetch emails now" button.
 		new Order_UI( $mailboxes_api, $settings, $logger );
-
-		// Single email view: which extraction patterns match this email.
-		new Email_Extraction_Metabox( $settings )->register_hooks();
 
 		// Admin dev tools page: create order + send mock payment email.
 		$admin_page = new Admin_Page( $mailboxes_api, $settings, $logger );

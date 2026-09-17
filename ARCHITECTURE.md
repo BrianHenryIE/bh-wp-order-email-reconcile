@@ -103,6 +103,13 @@ settings form). Saving goes through mailboxes' own AJAX handler, which upserts t
 the credentials, and tests the connection. Enabling/disabling, editing, checking and deleting
 accounts happen in the accounts table on the emails list screen, which mailboxes renders.
 
+## Extraction patterns metabox
+
+`Admin\Email_Extraction_Metabox`, registered by `make()` in wp-admin on the emails post type,
+renders the `Extraction_Result` saved to the email's `bh_wp_oer_extraction` meta: per pattern set,
+each regex with what it matched and in which body, then the merged values the reconciler used. It
+never runs the regexes itself.
+
 ## Unreconciled orders page
 
 `Admin\Unreconciled_Orders_Page` renders the orders the reconciler is waiting to match, using the
