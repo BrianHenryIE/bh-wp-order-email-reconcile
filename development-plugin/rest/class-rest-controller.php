@@ -13,7 +13,10 @@ declare(strict_types=1);
 namespace BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\REST;
 
 use BrianHenryIE\WP_Order_Email_Reconcile\BH_WP_Order_Email_Reconcile;
+use BrianHenryIE\WP_Order_Email_Reconcile\API\Email_Reconciler;
 use BrianHenryIE\WP_Order_Email_Reconcile\Email_Reconcile_Settings_Interface;
+use BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin\Check_Emails_Notice;
+use BrianHenryIE\WP_Order_Email_Reconcile_Test_Plugin\Admin\Order_UI;
 use BrianHenryIE\WP_Order_Email_Reconcile\WP_Includes\Cron_Scheduler;
 use BrianHenryIE\WP_Mailboxes\API\API as Mailboxes_API;
 use BrianHenryIE\WP_Mailboxes\BH_WP_Mailboxes;
@@ -92,6 +95,16 @@ class REST_Controller {
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'create_order' ),
 				'permission_callback' => '__return_true',
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/orders/(?P<id>\d+)/check-emails',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'check_emails_for_order' ),
+				'permission_callback' => fn() => current_user_can( 'edit_shop_orders' ), // phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce capability.
 			)
 		);
 
@@ -229,6 +242,65 @@ class REST_Controller {
 			),
 			200
 		);
+	}
+
+	/**
+	 * Check the mailbox now, from an order's edit screen ("Check emails"), and summarise the outcome
+	 * for that order.
+	 *
+	 * Returns the summary with its rendered notice. When this order was reconciled the summary is also
+	 * stored in a transient (per order and user) for the order screen the JS then reloads
+	 * ({@see Order_UI::print_check_emails_notice()}).
+	 *
+	 * @param WP_REST_Request $request The REST request; `id` is the order id.
+	 * @return WP_REST_Response
+	 */
+	public function check_emails_for_order( WP_REST_Request $request ): WP_REST_Response {
+
+		$order_id = (int) $request->get_param( 'id' );
+		$order    = wc_get_order( $order_id );
+
+		if ( ! $order instanceof \WC_Order ) {
+			return new WP_REST_Response( array( 'error' => 'Order not found.' ), 404 );
+		}
+
+		$result = $this->mailboxes_api->check_email();
+
+		$reconciled_emails = 0;
+		$matched_order_ids = array();
+		$matched_email_id  = 0;
+		foreach ( $result->get_emails() as $new_email ) {
+			$email_post_id       = $new_email->get_email()->get_post_id();
+			$reconciled_order_id = (int) get_post_meta( $email_post_id, Email_Reconciler::EMAIL_META_ORDER_ID, true );
+			if ( $reconciled_order_id <= 0 ) {
+				continue;
+			}
+			++$reconciled_emails;
+			$matched_order_ids[ $reconciled_order_id ] = true;
+			if ( $reconciled_order_id === $order_id ) {
+				$matched_email_id = $email_post_id;
+			}
+		}
+
+		$summary = array(
+			'order_id'          => $order_id,
+			'new_emails'        => count( $result->get_emails() ),
+			'reconciled_emails' => $reconciled_emails,
+			'matched_orders'    => count( $matched_order_ids ),
+			'matched_email_id'  => $matched_email_id,
+			'failed_accounts'   => count( $result->get_failures() ),
+		);
+
+		$this->logger->info( 'Check emails: triggered from order admin.', $summary );
+
+		// The JS reloads the order screen only when this order was reconciled; the notice for the
+		// reloaded page is left in a transient. Otherwise it shows the notice in place.
+		if ( $matched_email_id > 0 ) {
+			set_transient( Order_UI::check_emails_result_transient( $order_id ), $summary, MINUTE_IN_SECONDS * 5 );
+		}
+		$summary['notice_html'] = new Check_Emails_Notice( $this->logger )->render( $summary );
+
+		return new WP_REST_Response( $summary, 200 );
 	}
 
 	/**

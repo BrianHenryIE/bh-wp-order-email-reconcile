@@ -90,8 +90,8 @@ function instantiate_bh_wp_order_email_reconcile_test_plugin() {
 		);
 		new REST_Controller( $mailboxes_api, $cron_scheduler, $settings, $logger );
 
-		// Admin order-edit UI: customer payment id field + "Fetch emails now" button.
-		new Order_UI( $mailboxes_api, $settings, $logger );
+		// Admin order-edit UI: customer payment id field + "Check emails" link beside the order status.
+		new Order_UI( $settings, $logger );
 
 		// Admin dev tools page: create order + send mock payment email.
 		$admin_page = new Admin_Page( $mailboxes_api, $settings, $logger );
