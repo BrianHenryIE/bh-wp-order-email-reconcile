@@ -71,7 +71,7 @@ class Email_Reconciler {
 	/**
 	 * Constructor.
 	 *
-	 * @param Email_Reconcile_Settings_Interface $settings Provides the order meta key prefix.
+	 * @param Email_Reconcile_Settings_Interface $settings Settings (reserved for future matching rules).
 	 * @param LoggerInterface                    $logger   PSR-3 logger.
 	 */
 	public function __construct(
@@ -219,10 +219,22 @@ class Email_Reconciler {
 	}
 
 	/**
+	 * Prefix a meta key with the order's payment gateway id, e.g. `transaction_url` → `venmo_transaction_url`,
+	 * so the keys are distinct from other gateways' and from the integration's own (e.g. WooCommerce's
+	 * `_transaction_id`). A gateway id containing `-` is normalised to `_`.
+	 *
+	 * @param Unpaid_Order $order      The order the meta is recorded on.
+	 * @param string       $unprefixed The meta name, e.g. `transaction_url`.
+	 */
+	public function get_order_meta_key( Unpaid_Order $order, string $unprefixed ): string {
+		return str_replace( '-', '_', sprintf( '%s_%s', $order->get_payment_method_id(), $unprefixed ) );
+	}
+
+	/**
 	 * Checks the order is unpaid and the total matches the email amount, then marks the order paid
 	 * and records the transaction notes and metadata.
 	 *
-	 * Meta recorded on the order, each key prefixed per {@see Email_Reconcile_Settings_Interface::get_order_meta_prefix()}:
+	 * Meta recorded on the order, each key prefixed with the order's gateway id ({@see self::get_order_meta_key()}):
 	 * each parsed note by name, `transaction_id`, and `transaction_url` (once); plus the library's own
 	 * `bh_wp_oer_email_message_id` and `bh_wp_oer_email_post_id`.
 	 *
@@ -240,8 +252,6 @@ class Email_Reconciler {
 		$notes  = 'Reconciled from email:';
 		$notes .= ' ';
 
-		$meta_prefix = $this->settings->get_order_meta_prefix();
-
 		$transaction_meta_and_notes = $parsed_email->get_notes();
 
 		foreach ( $transaction_meta_and_notes as $name => $note ) {
@@ -252,7 +262,7 @@ class Email_Reconciler {
 				continue;
 			}
 
-			$order->add_meta( $meta_prefix . $name, $note );
+			$order->add_meta( $this->get_order_meta_key( $order, $name ), $note );
 
 			if ( isset( $transaction_meta_and_notes[ $name . '_href' ] ) ) {
 				$href   = $transaction_meta_and_notes[ $name . '_href' ];
@@ -276,7 +286,7 @@ class Email_Reconciler {
 		$order->add_note( $notes );
 
 		if ( ! empty( $parsed_email->get_transaction_url() ) ) {
-			$order->add_meta( $meta_prefix . 'transaction_url', $parsed_email->get_transaction_url() );
+			$order->add_meta( $this->get_order_meta_key( $order, 'transaction_url' ), $parsed_email->get_transaction_url() );
 		}
 
 		$order->add_meta( self::ORDER_META_EMAIL_MESSAGE_ID, $message_id );

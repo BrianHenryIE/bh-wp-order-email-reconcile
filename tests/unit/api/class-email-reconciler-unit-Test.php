@@ -53,8 +53,7 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 	public function test_match_by_customer_payment_id(): void {
 
 		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
-		$settings->shouldReceive( 'get_order_meta_prefix' )->andReturn( 'dev_' );
-		$sut = new Email_Reconciler( $settings, new NullLogger() );
+		$sut      = new Email_Reconciler( $settings, new NullLogger() );
 
 		$order = Mockery::mock( Unpaid_Order::class );
 		$order->shouldReceive( 'get_order_id' )->andReturn( 123 );
@@ -65,6 +64,7 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 		$order->shouldReceive( 'is_paid' )->andReturn( false );
 		$order->shouldReceive( 'get_amount' )->andReturn( '99.99' );
 		$order->shouldReceive( 'get_integration' )->andReturn( 'woocommerce' );
+		$order->shouldReceive( 'get_payment_method_id' )->andReturn( 'venmo' );
 		// The reconciliation side effects we expect on a match.
 		$order->shouldReceive( 'mark_paid' )->once()->with( 'transaction_id_axby' );
 		$order->shouldReceive( 'add_note' )->once();
@@ -134,8 +134,7 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 	public function test_reconcile_emails_returns_stats_keyed_by_order_id(): void {
 
 		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
-		$settings->shouldReceive( 'get_order_meta_prefix' )->andReturn( 'dev_' );
-		$sut = new Email_Reconciler( $settings, new NullLogger() );
+		$sut      = new Email_Reconciler( $settings, new NullLogger() );
 
 		$order = Mockery::mock( Unpaid_Order::class );
 		$order->shouldReceive( 'get_order_id' )->andReturn( 123 );
@@ -146,6 +145,7 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 		$order->shouldReceive( 'is_paid' )->andReturn( false );
 		$order->shouldReceive( 'get_amount' )->andReturn( '99.99' );
 		$order->shouldReceive( 'get_integration' )->andReturn( 'woocommerce' );
+		$order->shouldReceive( 'get_payment_method_id' )->andReturn( 'venmo' );
 		$order->shouldReceive( 'mark_paid' )->once();
 		$order->shouldReceive( 'add_note' )->once();
 		$order->shouldReceive( 'add_meta' );
@@ -173,16 +173,15 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 
 	/**
 	 * The meta recorded on a matched order: each note, the transaction id and the transaction url, prefixed
-	 * per the settings. The `transaction_id_href` note entry (the url again) is not recorded, and the url
-	 * is recorded exactly once.
+	 * with the order's gateway id. The `transaction_id_href` note entry (the url again) is not recorded, and
+	 * the url is recorded exactly once.
 	 *
 	 * @covers ::reconcile_email
 	 */
 	public function test_records_prefixed_meta_with_the_transaction_url_once(): void {
 
 		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
-		$settings->shouldReceive( 'get_order_meta_prefix' )->andReturn( 'venmo_' );
-		$sut = new Email_Reconciler( $settings, new NullLogger() );
+		$sut      = new Email_Reconciler( $settings, new NullLogger() );
 
 		$recorded_meta = array();
 
@@ -195,6 +194,7 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 		$order->shouldReceive( 'is_paid' )->andReturn( false );
 		$order->shouldReceive( 'get_amount' )->andReturn( '99.99' );
 		$order->shouldReceive( 'get_integration' )->andReturn( 'woocommerce' );
+		$order->shouldReceive( 'get_payment_method_id' )->andReturn( 'venmo' );
 		$order->shouldReceive( 'mark_paid' )->once()->with( '4242' );
 		$order->shouldReceive( 'add_note' )->once()->withArgs(
 			function ( string $note ): bool {
@@ -233,5 +233,17 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 			),
 			$recorded_meta
 		);
+	}
+
+	/**
+	 * @covers ::get_order_meta_key
+	 */
+	public function test_order_meta_key_normalises_hyphens_in_gateway_id(): void {
+		$sut = new Email_Reconciler( Mockery::mock( Email_Reconcile_Settings_Interface::class ), new NullLogger() );
+
+		$order = Mockery::mock( Unpaid_Order::class );
+		$order->shouldReceive( 'get_payment_method_id' )->andReturn( 'cash-app' );
+
+		$this->assertSame( 'cash_app_transaction_url', $sut->get_order_meta_key( $order, 'transaction_url' ) );
 	}
 }

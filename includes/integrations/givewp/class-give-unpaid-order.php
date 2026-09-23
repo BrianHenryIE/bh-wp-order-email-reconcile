@@ -150,6 +150,13 @@ class Give_Unpaid_Order implements Unpaid_Order {
 	}
 
 	/**
+	 * The payment gateway id, e.g. `venmo`.
+	 */
+	public function get_payment_method_id(): string {
+		return (string) $this->payment->gateway;
+	}
+
+	/**
 	 * Persist pending changes to the donation.
 	 */
 	public function save(): void {

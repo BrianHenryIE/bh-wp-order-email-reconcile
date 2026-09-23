@@ -156,6 +156,13 @@ class WC_Unpaid_Order implements Unpaid_Order {
 	}
 
 	/**
+	 * The payment gateway id, e.g. `venmo`.
+	 */
+	public function get_payment_method_id(): string {
+		return $this->order->get_payment_method();
+	}
+
+	/**
 	 * `shop_order` (the order's type is also the post type it is stored as).
 	 */
 	public function get_post_type(): string {

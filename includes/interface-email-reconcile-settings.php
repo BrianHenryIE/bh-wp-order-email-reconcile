@@ -44,15 +44,4 @@ interface Email_Reconcile_Settings_Interface extends BH_WP_Mailboxes_Settings_In
 	 * @return ?string
 	 */
 	public function get_customer_payment_id_meta_key(): ?string;
-
-	/**
-	 * Prefix for the meta keys the reconciler records on a matched order: the email's notes, `transaction_id`
-	 * and `transaction_url` become e.g. `venmo_note`, `venmo_transaction_id`, `venmo_transaction_url`.
-	 *
-	 * Use the payment gateway id, so the keys are distinct from other gateways' and from WooCommerce's own
-	 * `_transaction_id`.
-	 *
-	 * @see Email_Reconciler::match_email_to_order()
-	 */
-	public function get_order_meta_prefix(): string;
 }

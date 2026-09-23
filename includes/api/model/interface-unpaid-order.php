@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace BrianHenryIE\WP_Order_Email_Reconcile\API\Model;
 
+use BrianHenryIE\WP_Order_Email_Reconcile\API\Email_Reconciler;
+
 use DateTimeInterface;
 
 /**
@@ -37,6 +39,16 @@ interface Unpaid_Order {
 	 * Used both as an index key and to match an order id parsed from a payment note.
 	 */
 	public function get_order_id(): int;
+
+	/**
+	 * The id of the payment gateway the order was placed with, e.g. `venmo`.
+	 *
+	 * The meta the reconciler records on the order is prefixed with it, so `-` should be avoided in gateway ids
+	 * (it is replaced with `_`).
+	 *
+	 * @see Email_Reconciler::get_order_meta_key()
+	 */
+	public function get_payment_method_id(): string;
 
 	/**
 	 * The WordPress post type the order is stored as, e.g. `shop_order`, `give_payment`.

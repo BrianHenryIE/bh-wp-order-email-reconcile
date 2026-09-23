@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Breaking: `Email_Reconcile_Settings_Interface::get_order_meta_prefix()` — consumers return a prefix (e.g. the gateway id, `venmo_`) for the meta keys the reconciler records on a matched order: each parsed note, `transaction_id` and `transaction_url`
+* Breaking: `Unpaid_Order::get_payment_method_id()` — the meta keys the reconciler records on a matched order (each parsed note, `transaction_id` and `transaction_url`) are prefixed with the order's gateway id, e.g. `venmo_transaction_url` (`Email_Reconciler::get_order_meta_key()`)
 * Fix: the transaction url was recorded three times on a reconciled order (`transaction_id_href` twice and `transaction_url`); it is now recorded once as `{prefix}transaction_url`. Reconciling a WooCommerce order again replaces its recorded meta rather than appending duplicates
 * Add: "Add account" on WooCommerce payment gateway settings — `Credentials_Settings_Fields::append_imap_reconcile_fields()` adds a `bh_wp_oer_mailbox_accounts` field (rendered by `Mailbox_Settings_Field`) showing bh-wp-mailboxes' add/edit IMAP account modal button and a "Manage accounts" link to the emails list, whose accounts table handles enable/disable, edit, check now and delete
 * Add: `Admin\Unreconciled_Orders_Page` — an admin page listing the orders/donations still waiting for a payment email as a `WP_List_Table` (`Admin\Unreconciled_Orders_List_Table`; no checkboxes or bulk actions, paginated); consumers register it under their menu with `register_submenu()`. `API::get_unpaid_orders_provider()` exposes the aggregate provider
