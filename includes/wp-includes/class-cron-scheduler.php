@@ -69,7 +69,7 @@ class Cron_Scheduler {
 	 * @return string
 	 */
 	protected function get_state_option_name(): string {
-		return 'bh_wp_oer_' . sanitize_key( $this->settings->get_plugin_slug() ) . '_has_unpaid_orders';
+		return 'bh_wp_oer_' . str_replace( '-', '_', sanitize_key( $this->settings->get_plugin_slug() ) ) . '_has_unpaid_orders';
 	}
 
 	/**
