@@ -17,8 +17,8 @@
             "composer/installers": true,
             "cweagans/composer-patches": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "johnpbloch/wordpress-core-installer": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "roots/wordpress-core-installer": true
         },
         "platform": {
             "php": "8.4"
@@ -68,13 +68,12 @@
         "ext-dom": "*",
         "10up/wp_mock": "*",
         "antecedent/patchwork": "^2.1",
-        "brianhenryie/bh-wp-logger": ">=0.4.0 || dev-master",
         "brianhenryie/bh-wc-logger": "dev-master as 0.1.0 || dev-master || >=0.1.0",
         "brianhenryie/bh-wp-cli-logger": "dev-master as 1.0 || dev-master || >=1.0",
+        "brianhenryie/bh-wp-logger": ">=0.4.0 || dev-master",
         "brianhenryie/bh-wp-private-uploads": "dev-master as 0.5.1 || dev-master || >=0.5.1",
         "brianhenryie/color-logger": "*",
         "dealerdirect/phpcodesniffer-composer-installer": "*",
-        "johnpbloch/wordpress": "*",
         "lucatume/wp-browser": "*",
         "mockery/mockery": "*",
         "php-stubs/woocommerce-stubs": "*",
@@ -84,6 +83,8 @@
         "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/phpcov": "*",
         "rector/rector": "^2.4",
+        "roots/wordpress-core-installer": "^4.0",
+        "roots/wordpress-no-content": "^7.1",
         "squizlabs/php_codesniffer": "*",
         "szepeviktor/phpstan-wordpress": "*",
         "vlucas/phpdotenv": "*",
