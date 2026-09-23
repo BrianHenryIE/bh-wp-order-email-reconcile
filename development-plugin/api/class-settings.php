@@ -80,6 +80,15 @@ class Settings implements Email_Reconcile_Settings_Interface, Logger_Settings_In
 	}
 
 	/**
+	 * Prefix for the meta the reconciler records on matched orders.
+	 *
+	 * @see Email_Reconcile_Settings_Interface::get_order_meta_prefix()
+	 */
+	public function get_order_meta_prefix(): string {
+		return 'dev_';
+	}
+
+	/**
 	 * The display name for the emails' custom post type.
 	 *
 	 * @return string

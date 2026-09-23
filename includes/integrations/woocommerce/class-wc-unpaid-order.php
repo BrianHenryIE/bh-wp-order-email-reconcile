@@ -121,13 +121,13 @@ class WC_Unpaid_Order implements Unpaid_Order {
 	}
 
 	/**
-	 * Record metadata against the order.
+	 * Record metadata against the order. A key is recorded once: recording it again replaces the value.
 	 *
 	 * @param string $key   The meta key.
 	 * @param string $value The meta value.
 	 */
 	public function add_meta( string $key, string $value ): void {
-		$this->order->add_meta_data( $key, $value );
+		$this->order->update_meta_data( $key, $value );
 	}
 
 	/**

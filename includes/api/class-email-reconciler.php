@@ -71,7 +71,7 @@ class Email_Reconciler {
 	/**
 	 * Constructor.
 	 *
-	 * @param Email_Reconcile_Settings_Interface $settings Settings (reserved for future matching rules).
+	 * @param Email_Reconcile_Settings_Interface $settings Provides the order meta key prefix.
 	 * @param LoggerInterface                    $logger   PSR-3 logger.
 	 */
 	public function __construct(
@@ -222,6 +222,10 @@ class Email_Reconciler {
 	 * Checks the order is unpaid and the total matches the email amount, then marks the order paid
 	 * and records the transaction notes and metadata.
 	 *
+	 * Meta recorded on the order, each key prefixed per {@see Email_Reconcile_Settings_Interface::get_order_meta_prefix()}:
+	 * each parsed note by name, `transaction_id`, and `transaction_url` (once); plus the library's own
+	 * `bh_wp_oer_email_message_id` and `bh_wp_oer_email_post_id`.
+	 *
 	 * @param Parsed_Email $parsed_email The payment email needing a matching order.
 	 * @param Unpaid_Order $order        A candidate order to match against this email.
 	 */
@@ -233,24 +237,26 @@ class Email_Reconciler {
 			return false;
 		}
 
-		$notes = "Reconciled from email:";
+		$notes  = 'Reconciled from email:';
 		$notes .= ' ';
+
+		$meta_prefix = $this->settings->get_order_meta_prefix();
 
 		$transaction_meta_and_notes = $parsed_email->get_notes();
 
 		foreach ( $transaction_meta_and_notes as $name => $note ) {
 
-			$order->add_meta( $name, $note );
-
-			// A '..._href' entry provides the link target for its sibling note; do not print it as its own line.
-			if ( false !== strpos( $name, '_href' ) ) {
+			// A '..._href' entry provides the link target for its sibling note; it is neither printed as its own
+			// line nor recorded as meta (the transaction url is recorded once, below).
+			if ( str_ends_with( $name, '_href' ) ) {
 				continue;
 			}
+
+			$order->add_meta( $meta_prefix . $name, $note );
 
 			if ( isset( $transaction_meta_and_notes[ $name . '_href' ] ) ) {
 				$href   = $transaction_meta_and_notes[ $name . '_href' ];
 				$notes .= "$name: <a target=\"_blank\" href=\"$href\">$note</a><br/>\n";
-				$order->add_meta( $name . '_href', $href );
 			} else {
 				$notes .= "<em>$name</em> $note<br/>\n";
 			}
@@ -270,7 +276,7 @@ class Email_Reconciler {
 		$order->add_note( $notes );
 
 		if ( ! empty( $parsed_email->get_transaction_url() ) ) {
-			$order->add_meta( 'transaction_url', $parsed_email->get_transaction_url() );
+			$order->add_meta( $meta_prefix . 'transaction_url', $parsed_email->get_transaction_url() );
 		}
 
 		$order->add_meta( self::ORDER_META_EMAIL_MESSAGE_ID, $message_id );

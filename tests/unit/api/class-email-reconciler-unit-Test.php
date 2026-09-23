@@ -53,7 +53,8 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 	public function test_match_by_customer_payment_id(): void {
 
 		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
-		$sut      = new Email_Reconciler( $settings, new NullLogger() );
+		$settings->shouldReceive( 'get_order_meta_prefix' )->andReturn( 'dev_' );
+		$sut = new Email_Reconciler( $settings, new NullLogger() );
 
 		$order = Mockery::mock( Unpaid_Order::class );
 		$order->shouldReceive( 'get_order_id' )->andReturn( 123 );
@@ -133,7 +134,8 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 	public function test_reconcile_emails_returns_stats_keyed_by_order_id(): void {
 
 		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
-		$sut      = new Email_Reconciler( $settings, new NullLogger() );
+		$settings->shouldReceive( 'get_order_meta_prefix' )->andReturn( 'dev_' );
+		$sut = new Email_Reconciler( $settings, new NullLogger() );
 
 		$order = Mockery::mock( Unpaid_Order::class );
 		$order->shouldReceive( 'get_order_id' )->andReturn( 123 );
@@ -167,5 +169,69 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 		$this->assertArrayHasKey( 'reconciled_emails', $result );
 		$this->assertCount( 1, $result['reconciled_emails'] );
 		$this->assertArrayHasKey( 123, $result['reconciled_emails'] );
+	}
+
+	/**
+	 * The meta recorded on a matched order: each note, the transaction id and the transaction url, prefixed
+	 * per the settings. The `transaction_id_href` note entry (the url again) is not recorded, and the url
+	 * is recorded exactly once.
+	 *
+	 * @covers ::reconcile_email
+	 */
+	public function test_records_prefixed_meta_with_the_transaction_url_once(): void {
+
+		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
+		$settings->shouldReceive( 'get_order_meta_prefix' )->andReturn( 'venmo_' );
+		$sut = new Email_Reconciler( $settings, new NullLogger() );
+
+		$recorded_meta = array();
+
+		$order = Mockery::mock( Unpaid_Order::class );
+		$order->shouldReceive( 'get_order_id' )->andReturn( 123 );
+		$order->shouldReceive( 'get_post_type' )->andReturn( 'shop_order' );
+		$order->shouldReceive( 'get_customer_payment_id' )->andReturn( 'my_cashtag' );
+		$order->shouldReceive( 'get_email_address' )->andReturn( 'customer@example.org' );
+		$order->shouldReceive( 'get_customer_names' )->andReturn( array() );
+		$order->shouldReceive( 'is_paid' )->andReturn( false );
+		$order->shouldReceive( 'get_amount' )->andReturn( '99.99' );
+		$order->shouldReceive( 'get_integration' )->andReturn( 'woocommerce' );
+		$order->shouldReceive( 'mark_paid' )->once()->with( '4242' );
+		$order->shouldReceive( 'add_note' )->once()->withArgs(
+			function ( string $note ): bool {
+				$this->assertStringContainsString( '<a target="_blank" href="https://venmo.com/story/4242">4242</a>', $note );
+				$this->assertStringContainsString( '<em>note</em> order 123', $note );
+				return true;
+			}
+		);
+		$order->shouldReceive( 'add_meta' )->andReturnUsing(
+			function ( string $key, string $value ) use ( &$recorded_meta ): void {
+				$recorded_meta[] = array( $key, $value );
+			}
+		);
+		$order->shouldReceive( 'save' )->once();
+
+		$sut->index_orders( array( $order ) );
+
+		$parsed_email = new Parsed_Email( array(), BH_Email_Fixture::create() );
+		$parsed_email->set_customer_id( 'my_cashtag' );
+		$parsed_email->set_amount( '99.99' );
+		$parsed_email->set_notes( array( 'note' => 'order 123' ) );
+		$parsed_email->set_transaction_id( '4242' );
+		$parsed_email->set_transaction_url( 'https://venmo.com/story/4242' );
+
+		$result = $sut->reconcile_email( $parsed_email );
+
+		$this->assertTrue( $result['reconciled'] );
+
+		$this->assertSame(
+			array(
+				array( 'venmo_note', 'order 123' ),
+				array( 'venmo_transaction_id', '4242' ),
+				array( 'venmo_transaction_url', 'https://venmo.com/story/4242' ),
+				array( Email_Reconciler::ORDER_META_EMAIL_MESSAGE_ID, BH_Email_Fixture::create()->message_id ),
+				array( Email_Reconciler::ORDER_META_EMAIL_POST_ID, (string) BH_Email_Fixture::create()->get_post_id() ),
+			),
+			$recorded_meta
+		);
 	}
 }
