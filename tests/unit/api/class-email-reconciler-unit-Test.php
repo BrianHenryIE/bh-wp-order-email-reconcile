@@ -236,6 +236,59 @@ class Email_Reconciler_Unit_Test extends \Codeception\Test\Unit {
 	}
 
 	/**
+	 * When one payment email matches several unpaid orders (same customer, same amount), only one order is
+	 * marked paid. The email cannot pay for more than one order, so the remaining orders stay unpaid.
+	 *
+	 * @covers ::reconcile_email
+	 * @covers ::reconcile_emails
+	 */
+	public function test_one_email_marks_only_one_of_multiple_matching_orders_paid(): void {
+
+		$settings = Mockery::mock( Email_Reconcile_Settings_Interface::class );
+		$sut      = new Email_Reconciler( $settings, new NullLogger() );
+
+		$paid_order_ids = array();
+
+		$orders = array();
+		foreach ( array( 123, 124, 125 ) as $order_id ) {
+			$order = Mockery::mock( Unpaid_Order::class );
+			$order->shouldReceive( 'get_order_id' )->andReturn( $order_id );
+			$order->shouldReceive( 'get_post_type' )->andReturn( 'shop_order' );
+			$order->shouldReceive( 'get_customer_payment_id' )->andReturn( 'my_cashtag' );
+			$order->shouldReceive( 'get_email_address' )->andReturn( 'customer@example.org' );
+			$order->shouldReceive( 'get_customer_names' )->andReturn( array( 'firstname lastname' ) );
+			$order->shouldReceive( 'is_paid' )->andReturn( false );
+			$order->shouldReceive( 'get_amount' )->andReturn( '99.99' );
+			$order->shouldReceive( 'get_integration' )->andReturn( 'woocommerce' );
+			$order->shouldReceive( 'get_payment_method_id' )->andReturn( 'venmo' );
+			$order->shouldReceive( 'mark_paid' )->andReturnUsing(
+				function () use ( $order_id, &$paid_order_ids ): void {
+					$paid_order_ids[] = $order_id;
+				}
+			);
+			$order->shouldReceive( 'add_note' );
+			$order->shouldReceive( 'add_meta' );
+			$order->shouldReceive( 'save' );
+			$orders[] = $order;
+		}
+
+		$sut->index_orders( $orders );
+
+		// The email matches every order on customer id, email and name, and on amount.
+		$parsed_email = new Parsed_Email( array(), BH_Email_Fixture::create() );
+		$parsed_email->set_customer_id( 'my_cashtag' );
+		$parsed_email->set_customer_email( 'customer@example.org' );
+		$parsed_email->set_customer_name( 'Firstname Lastname' );
+		$parsed_email->set_amount( '99.99' );
+
+		$result = $sut->reconcile_emails( array( $parsed_email ) );
+
+		$this->assertCount( 1, $paid_order_ids, 'A single email must mark exactly one order paid.' );
+		$this->assertCount( 1, $result['reconciled_emails'] );
+		$this->assertSame( $paid_order_ids[0], array_key_first( $result['reconciled_emails'] ) );
+	}
+
+	/**
 	 * @covers ::get_order_meta_key
 	 */
 	public function test_order_meta_key_normalises_hyphens_in_gateway_id(): void {
